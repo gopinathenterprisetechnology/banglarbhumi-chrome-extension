@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Banglarbhumi Custom Paper Generator",
-  "version": "1.3",
-  "description": "ম্যানুয়াল ব্যানার ইমেজ আপলোড এবং পিডিএফ ডাউনলোডের সুবিধাসহ বাংলারভূমি লাইভ ডেটা ক্যাপচার এক্সটেনশন",
+  "name": "Banglarbhumi Pro Search Paper Editor",
+  "version": "1.5",
+  "description": "স্মার্ট ডিলিট, অটো-লেআউট অ্যাডজাস্টমেন্ট, টেক্সট এডিট এবং সরাসরি প্রিন্ট অপশন সহ এক্সটেনশন",
   "permissions": [
     "activeTab",
     "scripting"

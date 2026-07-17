@@ -1,16 +1,6 @@
-{
-  "manifest_version": 3,
-  "name": "Banglarbhumi Auto Sync Generator",
-  "version": "2.0",
-  "description": "বাংলারভূমি পোর্টাল থেকে কোনো পেস্ট ছাড়াই অটোমেটিক লাইভ ডেটা ক্যাপচার করার এক্সটেনশন",
-  "permissions": [
-    "activeTab",
-    "scripting"
-  ],
+  "action": {
+    "default_title": "Open Banglarbhumi Pro Editor"
+  },
   "background": {
     "service_worker": "background.js"
-  },
-  "action": {
-    "default_popup": "popup.html"
   }
-}

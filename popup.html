@@ -2,12 +2,10 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>Banglarbhumi Pro Editor</title>
-    <script src="https://cloudflare.com"></script>
-    <script src="https://cloudflare.com"></script>
+    <title>Banglarbhumi Ultimate Editor</title>
     <style>
         body { font-family: Arial, sans-serif; width: 800px; margin: 10px; background-color: #f4f6f9; color: #333; }
-        .control-panel { background: #ffffff; padding: 15px; border: 1px solid #d0d7de; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .control-panel { background: #ffffff; padding: 15px; border: 1px solid #d0d7de; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .flex-container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .upload-box { font-size: 13px; font-weight: bold; }
         .action-btns { display: flex; gap: 10px; }
@@ -17,40 +15,43 @@
         .btn-download:hover { background: #2c974b; }
         .btn-print { background: #0969da; }
         .btn-print:hover { background: #0c60cd; }
+        .btn-clean { background: #ff5722; }
+        .btn-clean:hover { background: #e64a19; }
         
         .edit-tip { font-size: 12px; color: #d9381e; font-weight: bold; background: #fff8f2; padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; border: 1px solid #ffe3cf; line-height: 1.4; }
         
-        /* প্রিন্ট এরিয়া ও টেবিল অটো-রিসেট লেআউট */
-        .paper-container { background: white; padding: 30px; border: 1px solid #d0d7de; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-radius: 4px; }
+        /* প্রিন্ট ফ্রেম লেআউট */
+        .paper-container { background: white; padding: 30px; border: 1px solid #d0d7de; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-radius: 4px; min-height: 400px; }
         .banner-wrapper { width: 100%; text-align: center; margin-bottom: 20px; }
         #uploaded-img { width: 100%; height: auto; max-height: 250px; object-fit: contain; display: none; border-bottom: 2px solid #111; padding-bottom: 12px; }
         
-        /* প্রফেশনাল বাংলারভূমি টেবিল রিসেট স্টাইল */
-        .scraped-content { width: 100%; table-layout: fixed; }
-        .scraped-content table { width: 100% !important; border-collapse: collapse !important; margin-top: 15px !important; table-layout: fixed !important; word-wrap: break-word !important; }
-        .scraped-content th, .scraped-content td { border: 1px solid #888 !important; padding: 10px !important; text-align: left !important; color: #000 !important; font-size: 13px !important; position: relative; transition: background 0.1s; }
-        .scraped-content th { background-color: #f6f8fa !important; font-weight: bold !important; }
+        /* পেস্ট করার পর টেবিলের অটো-ফরম্যাটিং ও ঘর সাজানোর স্টাইল */
+        .editable-workspace { width: 100%; min-height: 250px; outline: none; border: 1px dashed #ccc; padding: 10px; }
+        .editable-workspace table { width: 100% !important; border-collapse: collapse !important; margin-top: 15px !important; table-layout: fixed !important; word-wrap: break-word !important; }
+        .editable-workspace th, .editable-workspace td { border: 1px solid #888 !important; padding: 8px !important; text-align: left !important; color: #000 !important; font-size: 13px !important; position: relative; }
+        .editable-workspace th { background-color: #f6f8fa !important; font-weight: bold !important; }
         
-        /* এডিট করার সময় মাউস ওভার এফেক্ট */
-        .scraped-content tr:hover { background-color: #fff1f0 !important; }
-        .delete-btn-cell { display: none; position: absolute; top: 2px; right: 2px; background: #cf222e; color: white; border: none; border-radius: 3px; font-size: 10px; padding: 2px 5px; cursor: pointer; z-index: 10; font-family: sans-serif; }
-        .scraped-content tr:hover .delete-btn-cell, .scraped-content p:hover .delete-btn-cell { display: block; }
+        /* হোভার এবং ডিলিট কাস্টমাইজেশন */
+        .editable-workspace tr:hover { background-color: #fff1f0 !important; }
+        .delete-btn-cell { display: none; position: absolute; top: 2px; right: 2px; background: #cf222e; color: white; border: none; border-radius: 3px; font-size: 10px; padding: 2px 5px; cursor: pointer; z-index: 10; }
+        .editable-workspace tr:hover .delete-btn-cell, .editable-workspace p:hover .delete-btn-cell { display: block; }
         
-        /* সরাসরি প্রিন্ট করার মেকানিজম */
         @media print {
             .control-panel, .edit-tip, .delete-btn-cell { display: none !important; }
+            .editable-workspace { border: none !important; padding: 0 !important; }
             body { margin: 0; background: white; width: 100%; }
             .paper-container { border: none; box-shadow: none; padding: 0; margin: 0; }
-            .scraped-content tr:hover { background-color: transparent !important; }
+            .editable-workspace tr:hover { background-color: transparent !important; }
         }
     </style>
 </head>
 <body>
 
     <div class="edit-tip">
-        🛠️ <b>স্মার্ট এডিটিং গাইড:</b> <br>
-        • কাটার জন্য: রিপোর্টের যেকোনো লাইন বা টেবিলের রো-এর ওপর মাউস নিয়ে গেলে একটি লাল <b>"Delete"</b> বাটন আসবে, ওটাতে ক্লিক করলেই বাকি ঘরগুলো অটোমেটিক সুন্দরভাবে সাজিয়ে যাবে।<br>
-        • লেখা বদলানোর জন্য: যেকোনো লেখার ওপর সরাসরি ক্লিক করে আপনি নিজে টাইপ (Edit) করতে পারবেন!
+        📋 <b>ডাটা নিয়ে আসার সহজ নিয়ম (১০০% কাজ করবে):</b><br>
+        ১. বাংলারভূমি পেজে খতিয়ান বা প্লট সার্চ করুন। মাউস দিয়ে পুরো রেজাল্ট টেবিলটি সিলেক্ট করে <b>Copy</b> (Ctrl+C) করুন।<br>
+        ২. এই এক্সটেনশনের নিচের বক্সটির ভেতরে ক্লিক করে <b>Paste</b> (Ctrl+V) করে দিন। ঘরগুলো সাথে সাথে সুন্দরভাবে সেজে যাবে!<br>
+        ৩. কোনো লাইন কাটার জন্য মাউস নিয়ে গিয়ে <b>"Delete"</b> বাটনে চাপ দিন এবং যেকোনো লেখা সরাসরি ক্লিক করে বদলে দিন।
     </div>
 
     <div class="control-panel">
@@ -60,20 +61,22 @@
                 <input type="file" id="img-input" accept="image/jpeg, image/jpg">
             </div>
             <div class="action-btns">
+                <button id="clean-btn" class="btn btn-clean">ফাঁকা জায়গা কমান</button>
                 <button id="print-btn" class="btn btn-print">সরাসরি প্রিন্ট করুন</button>
-                <button id="download-btn" class="btn btn-download">PDF ডাউনলোড করুন</button>
+                <button id="download-btn" class="btn btn-download">PDF ডাউনলোড</button>
             </div>
         </div>
     </div>
 
-    <!-- এই ফ্রেমের কন্টেন্ট অটো-অ্যাডজাস্ট হবে -->
+    <!-- প্রিন্ট ও পেস্ট এরিয়া -->
     <div id="print-area" class="paper-container">
         <div class="banner-wrapper">
             <img id="uploaded-img" src="" alt="Uploaded Header Banner">
         </div>
         
-        <div id="live-content" class="scraped-content">
-            <p style="color: #666; text-align: center; padding: 30px; font-size: 14px;">বাংলারভূমি পোর্টালটি ওপেন করে তথ্য সার্চ করার পর এই এক্সটেনশনটি খুলুন...</p>
+        <!-- ইউজার এখানে সরাসরি কপি-পেস্ট এবং এডিট করতে পারবেন -->
+        <div id="live-content" class="editable-workspace" contenteditable="true" placeholder="বাংলারভূমি থেকে কপি করা টেবিল এখানে পেস্ট করুন...">
+            <p style="color: #999; text-align: center; padding-top: 80px;" contenteditable="false">টেবিল কপি করে এখানে Ctrl+V টিপে পেস্ট করুন...</p>
         </div>
     </div>
 

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Banglarbhumi Auto Sync Generator",
-  "version": "2.0",
-  "description": "বাংলারভূমি পোর্টাল থেকে কোনো পেস্ট ছাড়াই অটোমেটিক লাইভ ডেটা ক্যাপচার করার এক্সটেনশন",
+  "name": "Banglarbhumi Direct Pro Editor",
+  "version": "3.0",
+  "description": "বাংলারভূমি পেজের ওপর সরাসরি এডিটর, ইমেজ আপলোড এবং প্রিন্ট প্যানেল ওপেন করার এক্সটেনশন",
   "permissions": [
     "activeTab",
     "scripting"
@@ -10,12 +10,7 @@
   "background": {
     "service_worker": "background.js"
   },
-    "action": {
-    "default_title": "Open Banglarbhumi Pro Editor"
-  },
-  "background": {
-    "service_worker": "background.js"
+  "action": {
+    "default_title": "Open Editor Here"
   }
-
-  }
-
+}

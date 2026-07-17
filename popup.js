@@ -1,36 +1,70 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const liveContent = document.getElementById('live-content');
+document.addEventListener('DOMContentLoaded', async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    
+    if (tab && tab.url.includes("banglarbhumi.gov.in")) {
+        // অল-ফ্রেম প্যারামিটার দিয়ে স্ক্রিপ্ট রান করানো হচ্ছে, যা সমস্ত আইফ্রেম ব্রেক করবে
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id, allFrames: true },
+            func: extractDeepData
+        }, (results) => {
+            let combinedData = "";
+            
+            if (results && results.length > 0) {
+                results.forEach(frameResult => {
+                    if (frameResult.result) {
+                        combinedData += frameResult.result;
+                    }
+                });
+            }
 
-    // প্লেসহোল্ডার টেক্সট সরানোর মেকানিজম
-    liveContent.addEventListener('focus', () => {
-        if (liveContent.innerText.includes("কপি করা টেবিল এখানে পেস্ট করুন")) {
-            liveContent.innerHTML = "";
+            const contentArea = document.getElementById('live-content');
+            if (combinedData.trim().length > 0) {
+                contentArea.innerHTML = combinedData;
+                setupSmartDelete();
+                autoAdjustLayout();
+            } else {
+                contentArea.innerHTML = `
+                    <div style="color:red; text-align:center; padding: 20px;">
+                        <p><b>কোনো লাইভ ডেটা পাওয়া যায়নি!</b></p>
+                        <p style="color:#555; font-size:12px;">দয়া করে বাংলারভূমি পোর্টালে খতিয়ান বা প্লট সার্চ করে টেবিলটি স্ক্রিনে নিয়ে আসার পর এক্সটেনশনটি খুলুন।</p>
+                    </div>`;
+            }
+        });
+    } else {
+        document.getElementById('live-content').innerHTML = "<p style='color:red; text-align:center; padding: 20px;'>দয়া করে প্রথমে ব্রাউজারে Banglarbhumi ওয়েবসাইটটি ওপেন করুন।</p>";
+    }
+});
+
+// আইফ্রেম ভেদ করে লাইভ ডেটা তোলার ডিপ ফাংশন
+function extractDeepData() {
+    // বাংলারভূমির সমস্ত খতিয়ান ও প্লটের টেবিল খোঁজা হচ্ছে
+    const tables = document.querySelectorAll('table');
+    let htmlOutput = "";
+    
+    tables.forEach(table => {
+        // যে টেবিলে ডেটা আছে শুধুমাত্র সেটাই নেবে
+        if (table.innerText.trim().length > 15) {
+            htmlOutput += `<div style="margin-bottom:20px; width:100%;">${table.outerHTML}</div>`;
         }
     });
 
-    // পেস্ট হওয়ার সাথে সাথে টেবিলের প্রতিটি লাইনে স্মার্ট ডিলিট বাতন ইনজেক্ট করা হবে
-    liveContent.addEventListener('input', () => {
-        setupSmartDelete();
-        autoAdjustLayout();
-    });
+    if (htmlOutput) return htmlOutput;
 
-    // ফাঁকা জায়গা বা অপ্রয়োজনীয় ব্রেক ট্যাগ কমানোর বোতাম লজিক
-    document.getElementById('clean-btn').addEventListener('click', () => {
-        const brs = liveContent.querySelectorAll('br');
-        brs.forEach(br => br.remove()); // অতিরিক্ত লাইন গ্যাপ মুছে দেবে
-        
-        const emptyParagraphs = liveContent.querySelectorAll('p, div');
-        emptyParagraphs.forEach(el => {
-            if (el.innerText.trim() === "") el.remove();
-        });
-        autoAdjustLayout();
-    });
-});
+    // যদি টেবিল ট্যাগ ছাড়া অন্য কোনো কন্টেইনারে রেজাল্ট থাকে
+    const containers = ['.table-responsive', '#printArea', '.report-container', '[id*="report"]'];
+    for (let selector of containers) {
+        const el = document.querySelector(selector);
+        if (el && el.innerText.trim().length > 20) {
+            return el.innerHTML;
+        }
+    }
+    return null;
+}
 
-// ✂️ ডিলিট বাটন বসানো যা বাকি ঘরগুলো প্রফেশনালভাবে রি-অ্যারেঞ্জ করবে
+// ✂️ স্মার্ট ডিলিট অপশন যুক্ত করা
 function setupSmartDelete() {
     const liveContent = document.getElementById('live-content');
-    const rows = liveContent.querySelectorAll('tr, p, h4, div');
+    const rows = liveContent.querySelectorAll('tr, p, div, h4');
     
     rows.forEach(item => {
         if (item.tagName === 'TR' && item.querySelector('th')) return;
@@ -54,29 +88,23 @@ function setupSmartDelete() {
     });
 }
 
-// টেবিল উইডথ ১০০% করে বাকি ঘরগুলোকে সুন্দরভাবে সাজানো (Auto Layout Grid)
+// ঘরগুলোকে সোজা এবং সুন্দর করে রেন্ডার করার লেআউট ইঞ্জিন
 function autoAdjustLayout() {
     const tables = document.querySelectorAll('#live-content table');
     tables.forEach(table => {
         const remainingRows = table.querySelectorAll('tr');
-        if (remainingRows.length === 0) {
+        if (remainingRows.length <= 1 && !table.querySelector('td')) {
             table.remove();
             return;
         }
         table.style.width = '100%';
         table.style.tableLayout = 'fixed';
-        
-        // ভেতরের প্রতিটি সেলের স্টাইল ফিক্সড করা
-        table.querySelectorAll('td, th').forEach(cell => {
-            cell.style.padding = '8px';
-            cell.style.fontSize = '13px';
-        });
     });
 }
 
-// ইমেজ আপলোড লজিক
+// বড় ইমেজ আপলোড হ্যান্ডলার
 document.getElementById('img-input').addEventListener('change', function(e) {
-    const file = e.target.files[0];
+    const file = e.target.files;
     if (file) {
         const reader = new FileReader();
         reader.onload = function(event) {
@@ -88,20 +116,20 @@ document.getElementById('img-input').addEventListener('change', function(e) {
     }
 });
 
-// 🖨️ সরাসরি প্রিন্ট করার লজিক
+// 🖨️ সরাসরি প্রিন্ট করার মেকানিজম
 document.getElementById('print-btn').addEventListener('click', function() {
     window.print();
 });
 
-// PDF ডাউনলোড লজিক
+// PDF ডাউনলোডের ব্যাকআপ অপশন
 document.getElementById('download-btn').addEventListener('click', function() {
     const { jsPDF } = window.jspdf;
     const element = document.getElementById('print-area');
-
     const delButtons = document.querySelectorAll('.delete-btn-cell');
+    
     delButtons.forEach(btn => btn.style.visibility = 'hidden');
 
-    window.html2canvas(element, { scale: 2, useCORS: true, allowTaint: true }).then(canvas => {
+    html2canvas(element, { scale: 2, useCORS: true, allowTaint: true }).then(canvas => {
         delButtons.forEach(btn => btn.style.visibility = 'visible');
 
         const imgData = canvas.toDataURL('image/png');
@@ -121,6 +149,6 @@ document.getElementById('download-btn').addEventListener('click', function() {
             pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
             heightLeft -= pageHeight;
         }
-        pdf.save('Banglarbhumi_Perfect_Paper.pdf');
+        pdf.save('Banglarbhumi_Auto_Report.pdf');
     });
 });

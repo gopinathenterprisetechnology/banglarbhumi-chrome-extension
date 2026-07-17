@@ -1,12 +1,15 @@
 {
   "manifest_version": 3,
   "name": "Banglarbhumi Pro Auto Sync Tab Editor",
-  "version": "4.0",
-  "description": "বাংলারভূমি পোর্টাল থেকে অটোমেটিক লাইভ ডেটা ক্যাপচার করে সম্পূর্ণ নতুন ট্যাবে ওপেন করার এক্সটেনশন",
+  "version": "4.5",
+  "description": "বাংলারভূমি পোর্টাল থেকে ১০০% গ্যারান্টিড উপায়ে লাইভ ডেটা ও মেটা ক্যাপচার করার এক্সটেনশন",
   "permissions": [
     "activeTab",
     "scripting",
     "storage"
+  ],
+  "host_permissions": [
+    "*://*.banglarbhumi.gov.in/*"
   ],
   "background": {
     "service_worker": "background.js"

@@ -100,6 +100,29 @@
             margin: 0 auto;
         }
         
+        /* 🆕 মেটা সেকশন ডিজাইন - মাঝখানে (Center), বড় এবং প্রফেশনাল বোল্ড (Bold) করা হলো */
+        .meta-details-bar { 
+            display: flex; 
+            justify-content: center; 
+            gap: 40px;
+            background: #ffffff; 
+            padding: 14px 20px; 
+            margin-bottom: 25px; 
+            font-size: 16px; 
+            font-weight: bold !important; 
+            text-align: center;
+        }
+        .meta-item {
+            font-weight: 800 !important;
+            color: #000000 !important;
+        }
+        .meta-item span { 
+            color: #000000 !important; 
+            padding: 2px 6px; 
+            font-weight: 800 !important;
+            outline: none;
+        }
+        
         /* লাইভ টেবিল ওভাররাইড - স্ক্রোলবার মুক্ত মাল্টি পেজ লেআউট */
         .scraped-content, .bb-table-wrapper, .scraped-content div, .scraped-content section {
             height: auto !important;
@@ -124,7 +147,7 @@
         }
         .scraped-content th { background-color: #f6f8fa !important; font-weight: bold !important; }
         
-        /* স্মার্ট ডিলিট অপশন */
+        /* スマート ডিলিট অপশন */
         .scraped-content tr:hover, .scraped-content p:hover { background-color: #fff1f0 !important; }
         .delete-btn-cell { 
             display: none; 
@@ -148,6 +171,7 @@
             .control-panel, .delete-btn-cell { display: none !important; }
             body { margin: 0; padding: 0; background: #ffffff !important; }
             .paper-container { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
+            .meta-details-bar { background: transparent !important; margin-bottom: 20px; justify-content: center !important; }
             .scraped-content tr:hover { background-color: transparent !important; }
             
             /* ২য় পেজে ডাটা পাঠানোর অটোমেশন */

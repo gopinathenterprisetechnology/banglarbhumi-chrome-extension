@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Banglarbhumi Search Paper Generator",
+  "version": "1.0",
+  "description": "Generates a searching paper with image upload and PDF download option.",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": []
+}

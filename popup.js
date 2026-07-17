@@ -3,9 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const imgInput = document.getElementById('img-input');
     const uploadedImg = document.getElementById('uploaded-img');
 
-    // ১. স্টোরেজ থেকে অটো-সিঙ্ক হওয়া মেইন টেবিল ডেটা লোড করা
+    // ১. মেইন টেবিল ডেটা নিয়ে আসা
     chrome.storage.local.get("capturedData", (data) => {
-        if (data && data.capturedData) {
+        if (data && data.capturedData && data.capturedData.trim().length > 0) {
             liveContent.innerHTML = data.capturedData;
             setupSmartDelete();
         } else {
@@ -18,13 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.storage.local.remove("capturedData");
     });
 
-    // ২. স্টোরেজ থেকে অটো-সিঙ্ক হওয়া জেলা, ব্লক, মৌজার লাইভ ডেটা প্লেস করা
+    // ২. জেলা, ব্লক, মৌজার ডেটা রেন্ডার এবং ফিল্টার
     chrome.storage.local.get("mouzaMeta", (metaData) => {
         if (metaData && metaData.mouzaMeta) {
             const meta = metaData.mouzaMeta;
             
-            // ফিল্টার লজিক যাতে Selection, Loading বা Identification এর মতো ভুল শব্দ বক্সে না বসে
-            const isValid = (val) => val && val.length > 0 && 
+            const isValid = (val) => val && val.trim().length > 0 && 
                                     !val.toLowerCase().includes('select') && 
                                     !val.toLowerCase().includes('identif') && 
                                     !val.toLowerCase().includes('load');
@@ -36,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.storage.local.remove("mouzaMeta");
     });
 
-    // ৩. ইমেজ আপলোড সুইচ লজিক
+    // ৩. ইমেজ আপলোড লজিক
     imgInput.addEventListener('change', function(e) {
         if (e.target.files && e.target.files[0]) {
             const reader = new FileReader();

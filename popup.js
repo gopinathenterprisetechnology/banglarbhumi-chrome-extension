@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.storage.local.remove("capturedData");
     });
 
-    // ২. মেটা ডেটা ব্যাকআপ রিসিভার (যদি ব্যাকগ্রাউন্ড কোনো টেক্সট পায় তবেই চেঞ্জ হবে, নয়তো আগেরটাই থাকবে)
+    // ২. জেলা, ব্লক, মৌজার লাইভ ডেটা প্লেসমেন্ট (যদি ব্যাকগ্রাউন্ড থেকে ভ্যালু আসে তবেই রিপ্লেস হবে, নয়তো ডিফল্ট থাকবে)
     chrome.storage.local.get("mouzaMeta", (metaData) => {
         if (metaData && metaData.mouzaMeta) {
             const meta = metaData.mouzaMeta;

@@ -1,10 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    // ক্রোম এক্সটেনশনের রুট ডিরেক্টরি থেকে ব্যানার ইমেজের সঠিক ইউআরএল নিয়ে সেট করা
-    const bannerImg = document.getElementById('banner-img');
-    if (bannerImg) {
-        bannerImg.src = chrome.runtime.getURL('banner.jpg');
-    }
-
+    // লাইভ ট্যাব থেকে ডেটা ডিটেক্ট করা
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     
     if (tab && tab.url.includes("banglarbhumi.gov.in")) {
@@ -12,8 +7,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             target: { tabId: tab.id },
             func: scrapeBanglarbhumiData
         }, (results) => {
-            if (results && results[0] && results[0].result) {
-                document.getElementById('live-content').innerHTML = results[0].result;
+            if (results && results && results.result) {
+                document.getElementById('live-content').innerHTML = results.result;
             } else {
                 document.getElementById('live-content').innerHTML = "<p style='color:red; text-align:center; padding: 20px;'>কোনো ডেটা পাওয়া যায়নি! দয়া করে খতিয়ান বা দাগ সার্চ করার পর এক্সটেনশনটি চেক করুন।</p>";
             }
@@ -23,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// বাংলারভূমির ভেতরের কন্টেন্ট রিড করার ফাংশন
+// বাংলারভূমির ভেতরের ডাটা বা টেবিল রিড করার ফাংশন
 function scrapeBanglarbhumiData() {
     const targetElement = document.querySelector('.table-responsive') || 
                           document.querySelector('#printArea') || 
@@ -37,17 +32,29 @@ function scrapeBanglarbhumiData() {
     return mainBody ? mainBody.innerHTML : null;
 }
 
+// ম্যানুয়ালি ছবি আপলোড করার লজিক (যা পেজের মাথায় বড় করে সেট হবে)
+document.getElementById('img-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const imgElement = document.getElementById('uploaded-img');
+            imgElement.src = event.target.result;
+            imgElement.style.display = 'block'; // ছবি আপলোড হলেই এটি দৃশ্যমান হবে
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
 // PDF জেনারেট ও ডাউনলোড লজিক
 document.getElementById('download-btn').addEventListener('click', function() {
     const { jsPDF } = window.jspdf;
     const element = document.getElementById('print-area');
 
-    // allowTaint এবং local files এর জন্য html2canvas কনফিগারেশন টিউন করা হয়েছে
     html2canvas(element, { 
         scale: 2, 
         useCORS: true, 
-        allowTaint: true,
-        logging: false
+        allowTaint: true 
     }).then(canvas => {
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF('p', 'mm', 'a4');
@@ -66,6 +73,6 @@ document.getElementById('download-btn').addEventListener('click', function() {
             pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
             heightLeft -= pageHeight;
         }
-        pdf.save('Banglarbhumi_Live_Report.pdf');
+        pdf.save('Banglarbhumi_Report_With_Banner.pdf');
     });
 });

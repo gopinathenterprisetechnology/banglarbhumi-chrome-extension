@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const liveContent = document.getElementById('live-content');
+    const imgInput = document.getElementById('img-input');
+    const uploadedImg = document.getElementById('uploaded-img');
 
     // ১. স্টোরেজ থেকে অটো-সিঙ্ক হওয়া ডেটা রীড করে নিয়ে আসা
     chrome.storage.local.get("capturedData", (data) => {
@@ -10,9 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
             setupSmartDelete();
         } else {
             liveContent.innerHTML = `
-                <div style="color:red; text-align:center; padding: 30px;">
-                    <p><b>কোনো লাইভ ডেটা অটোমেটিক আনা যায়নি!</b></p>
-                    <p style="color:#555; font-size:12px;">নিশ্চিত করুন যে বাংলারভূমি পোর্টালে খতিয়ান বা প্লট সার্চ করা অবস্থায় আপনি এক্সটেনশন আইকনে ক্লিক করেছেন।</p>
+                <div style="color:red; text-align:center; padding: 50px;">
+                    <p style="font-size:16px; font-weight:bold;">কোনো লাইভ ডেটা অটোমেটিক আনা যায়নি!</p>
+                    <p style="color:#555; font-size:13px; margin-top:10px;">দয়া করে বাংলারভূমি পোর্টালে খতিয়ান বা প্লট সার্চ করে টেবিলটি স্ক্রিনে নিয়ে আসার পর এক্সটেনশন আইকনে ক্লিক করুন।</p>
                 </div>`;
         }
         
@@ -20,17 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.storage.local.remove("capturedData");
     });
 
-    // ২. ইমেজ আপলোড সুইচ লজিক
-    document.getElementById('img-input').addEventListener('change', function(e) {
-        const file = e.target.files;
-        if (file) {
+    // ২. ইমেজ আপলোড সুইচ লজিক (১০০% ফিক্সড)
+    imgInput.addEventListener('change', function(e) {
+        if (e.target.files && e.target.files[0]) {
             const reader = new FileReader();
             reader.onload = function(event) {
-                const imgElement = document.getElementById('uploaded-img');
-                imgElement.src = event.target.result;
-                imgElement.style.display = 'block';
+                uploadedImg.src = event.target.result;
+                uploadedImg.style.setProperty('display', 'block', 'important'); // ফোর্স ডিসপ্লে অন করা হলো
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(e.target.files[0]);
         }
     });
 

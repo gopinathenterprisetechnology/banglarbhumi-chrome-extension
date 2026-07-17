@@ -12,8 +12,8 @@
         .btn { background: #28a745; color: white; padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; }
         .btn:hover { background: #218838; }
         
-        /* স্থায়ী ব্যানার স্টাইল */
-        .default-banner { width: 100%; display: block; margin-bottom: 15px; border-bottom: 1px solid #ddd; }
+        /* স্থায়ী ব্যানার স্টাইল */
+        .default-banner { width: 100%; height: auto; display: block; margin-bottom: 15px; border-bottom: 1px solid #ddd; }
         
         /* বাংলারভূমির লাইভ ডেটার টেবিল ফরম্যাট */
         .scraped-content table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
@@ -30,8 +30,8 @@
     <!-- এই পুরো অংশটি হুবহু পিডিএফ প্রিন্ট হবে -->
     <div id="print-area" class="paper-container">
         
-        <!-- আপনার দেওয়া ইমেজটি এখানে সবসময় ফিক্সড থাকবে -->
-        <img class="default-banner" src="banner.jpg" alt="Government of West Bengal Land Department Banner">
+        <!-- ব্যানার ইমেজ (যা স্ক্রিপ্ট দিয়ে লোড হবে) -->
+        <img id="banner-img" class="default-banner" alt="Government of West Bengal Land Department Banner">
         
         <!-- লাইভ ডেটা এখানে এসে বসবে -->
         <div id="live-content" class="scraped-content">

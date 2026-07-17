@@ -6,33 +6,36 @@
     <script src="https://cloudflare.com"></script>
     <script src="https://cloudflare.com"></script>
     <style>
-        body { font-family: Arial, sans-serif; width: 680px; margin: 10px; background-color: #f9f9f9; }
-        .control-panel { background: #e6f2ff; padding: 12px; border: 1px solid #b3d7ff; margin-bottom: 15px; border-radius: 4px; }
-        .paper-container { background: white; padding: 20px; border: 1px solid #ccc; min-height: 200px; }
-        .btn { background: #28a745; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        #uploaded-img { width: 100%; max-height: 220px; object-fit: contain; margin-bottom: 15px; display: none; }
-        /* বাংলারভূমির ভেতরের টেবিল স্টাইল বজায় রাখার জন্য */
+        body { font-family: Arial, sans-serif; width: 720px; margin: 10px; background-color: #f5f5f5; }
+        .control-panel { background: #e6f2ff; padding: 12px; border: 1px solid #b3d7ff; margin-bottom: 15px; border-radius: 4px; text-align: right; }
+        .paper-container { background: white; padding: 20px; border: 1px solid #ccc; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
+        .btn { background: #28a745; color: white; padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .btn:hover { background: #218838; }
+        
+        /* স্থায়ী ব্যানার স্টাইল */
+        .default-banner { width: 100%; display: block; margin-bottom: 15px; border-bottom: 1px solid #ddd; }
+        
+        /* বাংলারভূমির লাইভ ডেটার টেবিল ফরম্যাট */
         .scraped-content table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
         .scraped-content th, .scraped-content td { border: 1px solid #aaa; padding: 6px; text-align: left; }
-        .scraped-content th { background-color: #f2f2f2; }
+        .scraped-content th { background-color: #f2f2f2; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="control-panel">
-        <label style="font-weight: bold;">সবার উপরে JPG ইমেজ যোগ করুন: </label>
-        <input type="file" id="img-input" accept="image/jpeg, image/jpg"><br><br>
         <button id="download-btn" class="btn">PDF ডাউনলোড করুন</button>
     </div>
 
-    <!-- এই অংশটি হুবহু পিডিএফ হবে -->
+    <!-- এই পুরো অংশটি হুবহু পিডিএফ প্রিন্ট হবে -->
     <div id="print-area" class="paper-container">
-        <!-- আপলোড করা JPG ইমেজ এখানে বসবে -->
-        <img id="uploaded-img" src="" alt="Header Image">
         
-        <!-- বাংলারভূমি থেকে লাইভ টেনে আনা ডেটা এখানে এসে ঢুকবে -->
+        <!-- আপনার দেওয়া ইমেজটি এখানে সবসময় ফিক্সড থাকবে -->
+        <img class="default-banner" src="banner.jpg" alt="Government of West Bengal Land Department Banner">
+        
+        <!-- লাইভ ডেটা এখানে এসে বসবে -->
         <div id="live-content" class="scraped-content">
-            <p style="color: gray; text-align: center;">বাংলারভূমি পোর্টালটি ওপেন করে তথ্য সার্চ করার পর এই এক্সটেনশনটি খুলুন...</p>
+            <p style="color: gray; text-align: center; padding: 20px;">বাংলারভূমি পোর্টালটি ওপেন করে তথ্য সার্চ করার পর এই এক্সটেনশনটি খুলুন...</p>
         </div>
     </div>
 

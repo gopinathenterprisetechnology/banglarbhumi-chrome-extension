@@ -2,46 +2,76 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>Banglarbhumi Live Paper</title>
+    <title>Banglarbhumi Pro Editor</title>
     <script src="https://cloudflare.com"></script>
     <script src="https://cloudflare.com"></script>
     <style>
-        body { font-family: Arial, sans-serif; width: 750px; margin: 10px; background-color: #f1f3f6; }
-        .control-panel { background: #e6f2ff; padding: 15px; border: 1px solid #b3d7ff; margin-bottom: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+        body { font-family: Arial, sans-serif; width: 800px; margin: 10px; background-color: #f4f6f9; color: #333; }
+        .control-panel { background: #ffffff; padding: 15px; border: 1px solid #d0d7de; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .flex-container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .upload-box { font-size: 13px; font-weight: bold; }
-        .paper-container { background: white; padding: 25px; border: 1px solid #ccc; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .btn { background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; }
-        .btn:hover { background: #218838; }
+        .action-btns { display: flex; gap: 10px; }
         
-        /* পেজের মাথায় বড় ইমেজের জন্য নিখুঁত স্টাইল */
+        .btn { color: white; padding: 10px 18px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s; }
+        .btn-download { background: #2ea44f; }
+        .btn-download:hover { background: #2c974b; }
+        .btn-print { background: #0969da; }
+        .btn-print:hover { background: #0c60cd; }
+        
+        .edit-tip { font-size: 12px; color: #d9381e; font-weight: bold; background: #fff8f2; padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; border: 1px solid #ffe3cf; line-height: 1.4; }
+        
+        /* প্রিন্ট এরিয়া ও টেবিল অটো-রিসেট লেআউট */
+        .paper-container { background: white; padding: 30px; border: 1px solid #d0d7de; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-radius: 4px; }
         .banner-wrapper { width: 100%; text-align: center; margin-bottom: 20px; }
-        #uploaded-img { width: 100%; height: auto; max-height: 250px; object-fit: contain; display: none; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        #uploaded-img { width: 100%; height: auto; max-height: 250px; object-fit: contain; display: none; border-bottom: 2px solid #111; padding-bottom: 12px; }
         
-        /* লাইভ টেবিলের বাংলারভূমি স্টাইল */
-        .scraped-content table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
-        .scraped-content th, .scraped-content td { border: 1px solid #999; padding: 8px; text-align: left; }
-        .scraped-content th { background-color: #f4f4f4; font-weight: bold; }
+        /* প্রফেশনাল বাংলারভূমি টেবিল রিসেট স্টাইল */
+        .scraped-content { width: 100%; table-layout: fixed; }
+        .scraped-content table { width: 100% !important; border-collapse: collapse !important; margin-top: 15px !important; table-layout: fixed !important; word-wrap: break-word !important; }
+        .scraped-content th, .scraped-content td { border: 1px solid #888 !important; padding: 10px !important; text-align: left !important; color: #000 !important; font-size: 13px !important; position: relative; transition: background 0.1s; }
+        .scraped-content th { background-color: #f6f8fa !important; font-weight: bold !important; }
+        
+        /* এডিট করার সময় মাউস ওভার এফেক্ট */
+        .scraped-content tr:hover { background-color: #fff1f0 !important; }
+        .delete-btn-cell { display: none; position: absolute; top: 2px; right: 2px; background: #cf222e; color: white; border: none; border-radius: 3px; font-size: 10px; padding: 2px 5px; cursor: pointer; z-index: 10; font-family: sans-serif; }
+        .scraped-content tr:hover .delete-btn-cell, .scraped-content p:hover .delete-btn-cell { display: block; }
+        
+        /* সরাসরি প্রিন্ট করার মেকানিজম */
+        @media print {
+            .control-panel, .edit-tip, .delete-btn-cell { display: none !important; }
+            body { margin: 0; background: white; width: 100%; }
+            .paper-container { border: none; box-shadow: none; padding: 0; margin: 0; }
+            .scraped-content tr:hover { background-color: transparent !important; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="control-panel">
-        <div class="upload-box">
-            <label style="color: #0056b3; display: block; margin-bottom: 5px;">পেজের মাথায় বড় ইমেজ যোগ করুন (JPG):</label>
-            <input type="file" id="img-input" accept="image/jpeg, image/jpg">
-        </div>
-        <button id="download-btn" class="btn">PDF ডাউনলোড করুন</button>
+    <div class="edit-tip">
+        🛠️ <b>স্মার্ট এডিটিং গাইড:</b> <br>
+        • কাটার জন্য: রিপোর্টের যেকোনো লাইন বা টেবিলের রো-এর ওপর মাউস নিয়ে গেলে একটি লাল <b>"Delete"</b> বাটন আসবে, ওটাতে ক্লিক করলেই বাকি ঘরগুলো অটোমেটিক সুন্দরভাবে সাজিয়ে যাবে।<br>
+        • লেখা বদলানোর জন্য: যেকোনো লেখার ওপর সরাসরি ক্লিক করে আপনি নিজে টাইপ (Edit) করতে পারবেন!
     </div>
 
-    <!-- এই পুরো ফ্রেমে যা থাকবে সব পিডিএফে কনভার্ট হবে -->
+    <div class="control-panel">
+        <div class="flex-container">
+            <div class="upload-box">
+                <label style="color: #0969da; display: block; margin-bottom: 5px;">পেজের মাথায় বড় ইমেজ যোগ করুন (JPG):</label>
+                <input type="file" id="img-input" accept="image/jpeg, image/jpg">
+            </div>
+            <div class="action-btns">
+                <button id="print-btn" class="btn btn-print">সরাসরি প্রিন্ট করুন</button>
+                <button id="download-btn" class="btn btn-download">PDF ডাউনলোড করুন</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- এই ফ্রেমের কন্টেন্ট অটো-অ্যাডজাস্ট হবে -->
     <div id="print-area" class="paper-container">
-        
-        <!-- আপলোড করা বড় ইমেজটি এখানে বসবে -->
         <div class="banner-wrapper">
             <img id="uploaded-img" src="" alt="Uploaded Header Banner">
         </div>
         
-        <!-- লাইভ ডেটা এখানে এসে ইনসার্ট হবে -->
         <div id="live-content" class="scraped-content">
             <p style="color: #666; text-align: center; padding: 30px; font-size: 14px;">বাংলারভূমি পোর্টালটি ওপেন করে তথ্য সার্চ করার পর এই এক্সটেনশনটি খুলুন...</p>
         </div>

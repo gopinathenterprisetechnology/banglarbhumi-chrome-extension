@@ -3,12 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const imgInput = document.getElementById('img-input');
     const uploadedImg = document.getElementById('uploaded-img');
 
-    // ১. স্টোরেজ থেকে অটো-সিঙ্ক হওয়া ডেটা রীড করে নিয়ে আসা
+    // ১. স্টোরেজ থেকে অটো-সিঙ্ক হওয়া মেইন টেবিল ডেটা লোড করা
     chrome.storage.local.get("capturedData", (data) => {
         if (data && data.capturedData) {
             liveContent.innerHTML = data.capturedData;
-            
-            // ডিলিট বাটন মেকানিজম চালু করা
             setupSmartDelete();
         } else {
             liveContent.innerHTML = `
@@ -17,35 +15,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p style="color:#555; font-size:13px; margin-top:10px;">দয়া করে বাংলারভূমি পোর্টালে খতিয়ান বা প্লট সার্চ করে টেবিলটি স্ক্রিনে নিয়ে আসার পর এক্সটেনশন আইকনে ক্লিক করুন।</p>
                 </div>`;
         }
-        
-        // কাজ শেষ হলে স্টোরেজ খালি করে দেওয়া যাতে পরের সার্চ ফ্রেশ আসে
         chrome.storage.local.remove("capturedData");
     });
-     // 🆕 ১.১ স্টোরেজ থেকে অটো-সিঙ্ক হওয়া জেলা, ব্লক, মৌজার লাইভ ডেটা রিসিভ করা (শর্ত অনুযায়ী কোনো ডিফল্ট ডেটা নেই)
+
+    // ২. স্টোরেজ থেকে অটো-সিঙ্ক হওয়া জেলা, ব্লক, মৌজার লাইভ ডেটা প্লেস করা
     chrome.storage.local.get("mouzaMeta", (metaData) => {
         if (metaData && metaData.mouzaMeta) {
             const meta = metaData.mouzaMeta;
-            if (meta.district) document.getElementById('lbl-district').innerText = meta.district;
-            if (meta.block) document.getElementById('lbl-block').innerText = meta.block;
-            if (meta.mouza) document.getElementById('lbl-mouza').innerText = meta.mouza;
+            // যদি ডেটার মান 'Selection' বা 'LOADING' বা অন্য কিছু ভুল আসে তা ফিল্টার করবে
+            const isValid = (val) => val && val.length > 0 && !val.toLowerCase().includes('select') && !val.toLowerCase().includes('identif') && !val.toLowerCase().includes('load');
+            
+            if (isValid(meta.district)) document.getElementById('lbl-district').innerText = meta.district;
+            if (isValid(meta.block)) document.getElementById('lbl-block').innerText = meta.block;
+            if (isValid(meta.mouza)) document.getElementById('lbl-mouza').innerText = meta.mouza;
         }
-        // কাজ শেষ হলে স্টোরেজ খালি করে দেওয়া
         chrome.storage.local.remove("mouzaMeta");
     });
 
-    // ২. ইমেজ আপলোড সুইচ লজিক (১০০% ফিক্সড)
+    // ৩. ইমেজ আপলোড সুইচ লজিক
     imgInput.addEventListener('change', function(e) {
         if (e.target.files && e.target.files[0]) {
             const reader = new FileReader();
             reader.onload = function(event) {
                 uploadedImg.src = event.target.result;
-                uploadedImg.style.setProperty('display', 'block', 'important'); // ফোর্স ডিসপ্লে অন করা হলো
+                uploadedImg.style.setProperty('display', 'block', 'important');
             };
             reader.readAsDataURL(e.target.files[0]);
         }
     });
 
-    // ৩. স্মার্ট ডিলিট অপশন তৈরি
+    // ৪. স্মার্ট ডিলিট অপশন তৈরি
     function setupSmartDelete() {
         const rows = liveContent.querySelectorAll('tr, p, div, h4');
         rows.forEach(item => {
@@ -66,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ৪. সরাসরি প্রিন্ট এবং পিডিএফ উইন্ডো ট্রিগার
+    // ৫. সরাসরি প্রিন্ট উইন্ডো ট্রিগার
     document.getElementById('print-btn').addEventListener('click', () => {
         window.print();
     });

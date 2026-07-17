@@ -22,8 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.local.get("mouzaMeta", (metaData) => {
         if (metaData && metaData.mouzaMeta) {
             const meta = metaData.mouzaMeta;
-            // যদি ডেটার মান 'Selection' বা 'LOADING' বা অন্য কিছু ভুল আসে তা ফিল্টার করবে
-            const isValid = (val) => val && val.length > 0 && !val.toLowerCase().includes('select') && !val.toLowerCase().includes('identif') && !val.toLowerCase().includes('load');
+            
+            // ফিল্টার লজিক যাতে Selection, Loading বা Identification এর মতো ভুল শব্দ বক্সে না বসে
+            const isValid = (val) => val && val.length > 0 && 
+                                    !val.toLowerCase().includes('select') && 
+                                    !val.toLowerCase().includes('identif') && 
+                                    !val.toLowerCase().includes('load');
             
             if (isValid(meta.district)) document.getElementById('lbl-district').innerText = meta.district;
             if (isValid(meta.block)) document.getElementById('lbl-block').innerText = meta.block;

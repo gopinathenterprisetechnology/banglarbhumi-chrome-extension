@@ -21,6 +21,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // কাজ শেষ হলে স্টোরেজ খালি করে দেওয়া যাতে পরের সার্চ ফ্রেশ আসে
         chrome.storage.local.remove("capturedData");
     });
+     // 🆕 ১.১ স্টোরেজ থেকে অটো-সিঙ্ক হওয়া জেলা, ব্লক, মৌজার লাইভ ডেটা রিসিভ করা (শর্ত অনুযায়ী কোনো ডিফল্ট ডেটা নেই)
+    chrome.storage.local.get("mouzaMeta", (metaData) => {
+        if (metaData && metaData.mouzaMeta) {
+            const meta = metaData.mouzaMeta;
+            if (meta.district) document.getElementById('lbl-district').innerText = meta.district;
+            if (meta.block) document.getElementById('lbl-block').innerText = meta.block;
+            if (meta.mouza) document.getElementById('lbl-mouza').innerText = meta.mouza;
+        }
+        // কাজ শেষ হলে স্টোরেজ খালি করে দেওয়া
+        chrome.storage.local.remove("mouzaMeta");
+    });
 
     // ২. ইমেজ আপলোড সুইচ লজিক (১০০% ফিক্সড)
     imgInput.addEventListener('change', function(e) {

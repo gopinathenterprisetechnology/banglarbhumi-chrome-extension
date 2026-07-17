@@ -1,12 +1,15 @@
 {
   "manifest_version": 3,
-  "name": "Banglarbhumi Pro Search Paper Editor",
-  "version": "1.5",
-  "description": "স্মার্ট ডিলিট, অটো-লেআউট অ্যাডজাস্টমেন্ট, টেক্সট এডিট এবং সরাসরি প্রিন্ট অপশন সহ এক্সটেনশন",
+  "name": "Banglarbhumi Auto Sync Generator",
+  "version": "2.0",
+  "description": "বাংলারভূমি পোর্টাল থেকে কোনো পেস্ট ছাড়াই অটোমেটিক লাইভ ডেটা ক্যাপচার করার এক্সটেনশন",
   "permissions": [
     "activeTab",
     "scripting"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "popup.html"
   }

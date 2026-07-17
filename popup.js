@@ -1,5 +1,10 @@
-// এক্সটেনশন খুললেই ওপেন থাকা বাংলারভূমি ট্যাব থেকে ডেটা নিয়ে আসবে
 document.addEventListener('DOMContentLoaded', async () => {
+    // ক্রোম এক্সটেনশনের রুট ডিরেক্টরি থেকে ব্যানার ইমেজের সঠিক ইউআরএল নিয়ে সেট করা
+    const bannerImg = document.getElementById('banner-img');
+    if (bannerImg) {
+        bannerImg.src = chrome.runtime.getURL('banner.jpg');
+    }
+
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     
     if (tab && tab.url.includes("banglarbhumi.gov.in")) {
@@ -20,7 +25,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // বাংলারভূমির ভেতরের কন্টেন্ট রিড করার ফাংশন
 function scrapeBanglarbhumiData() {
-    // বাংলারভূমির রিপোর্ট বা টেবিল কন্টেইনার আইডি/ক্লাস ডিটেক্ট করা
     const targetElement = document.querySelector('.table-responsive') || 
                           document.querySelector('#printArea') || 
                           document.querySelector('.report-container');
@@ -38,7 +42,13 @@ document.getElementById('download-btn').addEventListener('click', function() {
     const { jsPDF } = window.jspdf;
     const element = document.getElementById('print-area');
 
-    html2canvas(element, { scale: 2, useCORS: true, allowTaint: true }).then(canvas => {
+    // allowTaint এবং local files এর জন্য html2canvas কনফিগারেশন টিউন করা হয়েছে
+    html2canvas(element, { 
+        scale: 2, 
+        useCORS: true, 
+        allowTaint: true,
+        logging: false
+    }).then(canvas => {
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF('p', 'mm', 'a4');
         const imgWidth = 210; 

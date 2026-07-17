@@ -2,25 +2,19 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>Banglarbhumi Paper</title>
+    <title>Live Search Paper</title>
     <script src="https://cloudflare.com"></script>
     <script src="https://cloudflare.com"></script>
     <style>
-        body { font-family: Arial, sans-serif; width: 650px; margin: 10px; padding: 0; background-color: #f9f9f9; }
-        .control-panel { background: #e6f2ff; padding: 10px; border: 1px solid #b3d7ff; margin-bottom: 15px; border-radius: 4px; }
-        .paper-container { background: white; padding: 15px; border: 1px solid #ccc; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header { text-align: center; font-weight: bold; font-size: 16px; line-height: 1.4; border-bottom: 2px double #000; padding-bottom: 5px; }
-        .live-data { color: blue; font-weight: bold; font-size: 12px; margin: 8px 0; }
-        .top-table, .main-table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 12px; }
-        .top-table th, .top-table td, .main-table th, .main-table td { border: 1px solid #bbb; padding: 5px; text-align: left; }
-        .top-table th { background-color: #f2f2f2; }
-        .main-table th { background-color: #ddd; font-weight: bold; }
-        .main-table tr:nth-child(even) { background-color: #f9f9f9; }
-        .btn { background: #007bff; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px; }
-        .btn-download { background: #28a745; }
-        #uploaded-img { width: 100%; max-height: 250px; object-fit: contain; margin-top: 10px; display: none; border: 1px dashed #ccc; }
-        .barga { color: blue; }
-        .nil { color: red; }
+        body { font-family: Arial, sans-serif; width: 680px; margin: 10px; background-color: #f9f9f9; }
+        .control-panel { background: #e6f2ff; padding: 12px; border: 1px solid #b3d7ff; margin-bottom: 15px; border-radius: 4px; }
+        .paper-container { background: white; padding: 20px; border: 1px solid #ccc; min-height: 200px; }
+        .btn { background: #28a745; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        #uploaded-img { width: 100%; max-height: 220px; object-fit: contain; margin-bottom: 15px; display: none; }
+        /* বাংলারভূমির ভেতরের টেবিল স্টাইল বজায় রাখার জন্য */
+        .scraped-content table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        .scraped-content th, .scraped-content td { border: 1px solid #aaa; padding: 6px; text-align: left; }
+        .scraped-content th { background-color: #f2f2f2; }
     </style>
 </head>
 <body>
@@ -28,103 +22,18 @@
     <div class="control-panel">
         <label style="font-weight: bold;">সবার উপরে JPG ইমেজ যোগ করুন: </label>
         <input type="file" id="img-input" accept="image/jpeg, image/jpg"><br><br>
-        <button id="download-btn" class="btn btn-download">PDF ডাউনলোড করুন</button>
+        <button id="download-btn" class="btn">PDF ডাউনলোড করুন</button>
     </div>
 
-    <!-- এই অংশটি PDF এ কনভার্ট হবে -->
+    <!-- এই অংশটি হুবহু পিডিএফ হবে -->
     <div id="print-area" class="paper-container">
+        <!-- আপলোড করা JPG ইমেজ এখানে বসবে -->
+        <img id="uploaded-img" src="" alt="Header Image">
         
-        <!-- আপলোড করা ইমেজ এখানে দেখাবে -->
-        <img id="uploaded-img" src="" alt="Uploaded Header Image">
-
-        <div class="header">
-            Banglarbhumi - বাংলার ভূমি<br>
-            <span style="font-size: 13px;">জেলাঃ হুগলী | ব্লকঃ আরামবাগ | মৌজাঃ কাঁটাবনী</span>
+        <!-- বাংলারভূমি থেকে লাইভ টেনে আনা ডেটা এখানে এসে ঢুকবে -->
+        <div id="live-content" class="scraped-content">
+            <p style="color: gray; text-align: center;">বাংলারভূমি পোর্টালটি ওপেন করে তথ্য সার্চ করার পর এই এক্সটেনশনটি খুলুন...</p>
         </div>
-
-        <div class="live-data">(Live Data As On 21/11/2025,18:04:28)<br>জে.এল নং 142 থানা আরামবাগ</div>
-
-        <table class="top-table">
-            <thead>
-                <tr>
-                    <th>দাগ নং</th>
-                    <th>শ্রেণী</th>
-                    <th>জমির মোট পরিমাণ (একর)</th>
-                    <th>দাগের ম্যাপ</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><b>483</b></td>
-                    <td>শালি</td>
-                    <td>4.77</td>
-                    <td style="color: blue; text-decoration: underline; cursor: pointer;">Click Here</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <p style="color: red; font-size: 10px; margin: 8px 0;">(উল্লিখিত খতিয়ানের যথার্থ অংশ পরিমাণ, ঐ খতিয়ানে উক্ত দাগে অংশ অনুসারে নির্ধারিত হইবে।)</p>
-
-        <table class="main-table">
-            <thead>
-                <tr>
-                    <th>খতিয়ান নং</th>
-                    <th>রায়তের নাম</th>
-                    <th>পিতা/স্বামী</th>
-                    <th>অংশ</th>
-                    <th>অংশ পরিমাণ (একর)</th>
-                    <th>দখলদার</th>
-                    <th>মন্তব্য</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>279</td>
-                    <td>আব্দুল রউফ মণ্ডল</td>
-                    <td>মনুসুর আলি</td>
-                    <td>0.0318</td>
-                    <td>0.15</td>
-                    <td class="nil">Nil</td>
-                    <td class="nil">Nil</td>
-                </tr>
-                <tr>
-                    <td>410</td>
-                    <td>আব্দুল হাকিম মণ্ডল</td>
-                    <td>ইয়াকুব আলি মণ্ডল</td>
-                    <td>0.1584</td>
-                    <td>0.75</td>
-                    <td class="barga">বর্গা</td>
-                    <td class="nil">Nil</td>
-                </tr>
-                <tr>
-                    <td>534</td>
-                    <td>সৈদুল মণ্ডল</td>
-                    <td>জয়নাল আবেদীন মণ্ডল</td>
-                    <td>0.0685</td>
-                    <td>0.33</td>
-                    <td class="nil">Nil</td>
-                    <td class="nil">Nil</td>
-                </tr>
-                <tr>
-                    <td>620</td>
-                    <td>কাজল মালিক</td>
-                    <td>বিজয়</td>
-                    <td>0.0083</td>
-                    <td>0.04</td>
-                    <td class="barga">বর্গা</td>
-                    <td class="nil">Nil</td>
-                </tr>
-                <tr>
-                    <td>1059</td>
-                    <td>বাপন পোড়েল</td>
-                    <td>বাদল পোড়েল</td>
-                    <td>0.0142</td>
-                    <td>0.07</td>
-                    <td class="nil">Nil</td>
-                    <td class="nil">Nil</td>
-                </tr>
-            </tbody>
-        </table>
     </div>
 
     <script src="popup.js"></script>

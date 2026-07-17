@@ -2,20 +2,103 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>Banglarbhumi Full Tab Editor</title>
+    <title>Banglarbhumi Pro Full Tab Editor</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f1f3f6; margin: 0; padding: 20px; color: #333; }
-        .control-panel { background: #ffffff; padding: 15px; border: 1px solid #b3d7ff; margin-bottom: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); max-width: 850px; margin-left: auto; margin-right: auto; }
-        .upload-box { font-size: 13px; font-weight: bold; }
+        /* প্রফেশনাল ব্যাকগ্রাউন্ড এবং বডি ডিজাইন */
+        body { 
+            font-family: 'Helvetica Neue', Arial, sans-serif; 
+            background: #eef2f5 !important; 
+            margin: 0; 
+            padding: 30px 20px; 
+            color: #333; 
+        }
         
-        .btn { color: white; padding: 10px 18px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; }
-        .btn-print { background: #007bff; }
-        .btn-print:hover { background: #0069d9; }
+        /* আধুনিক কন্ট্রোল প্যানেল */
+        .control-panel { 
+            background: #ffffff; 
+            padding: 20px; 
+            border: 1px solid #d0d7de; 
+            margin-bottom: 25px; 
+            border-radius: 8px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+            max-width: 850px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            box-sizing: border-box;
+        }
         
-        /* প্রফেশনাল প্রিন্ট পেপার ও স্ক্রোলবার ব্রেকার */
-        .paper-container { background: white; padding: 40px; border: 1px solid #ccc; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 850px; margin-left: auto; margin-right: auto; min-height: 500px; position: relative; box-sizing: border-box; }
-        .banner-wrapper { width: 100%; text-align: center; margin-bottom: 20px; }
-        #uploaded-img { width: 100%; height: auto; max-height: 250px; display: none; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .upload-box { 
+            font-size: 14px; 
+            font-weight: bold; 
+        }
+        
+        .upload-box label {
+            color: #0969da; 
+            display: block; 
+            margin-bottom: 8px;
+        }
+
+        .upload-box input[type="file"] {
+            padding: 6px;
+            background: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn { 
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 15px; 
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-print { background: #0969da; }
+        .btn-print:hover { background: #0c60cd; transform: translateY(-1px); }
+        .btn-print:active { transform: translateY(0); }
+        
+        /* প্রিমিয়াম প্রিন্ট পেপার কন্টেইনার */
+        .paper-container { 
+            background: #ffffff !important; 
+            padding: 45px; 
+            border: 1px solid #d0d7de; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08); 
+            border-radius: 6px; 
+            max-width: 850px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            min-height: 600px; 
+            position: relative; 
+            box-sizing: border-box; 
+        }
+        
+        /* পেজের মাথায় বড় ইমেজ/ব্যানারের জন্য নিখুঁত ডিজাইন */
+        .banner-wrapper { 
+            width: 100%; 
+            text-align: center; 
+            margin-bottom: 25px; 
+            display: block;
+            clear: both;
+        }
+        
+        /* ইমেজ হাইড/শো এবং সাইজ নিশ্চিত করার সিএসএস */
+        #uploaded-img { 
+            width: 100% !important; 
+            height: auto !important; 
+            max-height: 280px !important; 
+            object-fit: contain !important;
+            display: none; 
+            border-bottom: 2px solid #222; 
+            padding-bottom: 12px; 
+            margin: 0 auto;
+        }
         
         /* লাইভ টেবিল ওভাররাইড - স্ক্রোলবার মুক্ত মাল্টি পেজ লেআউট */
         .scraped-content, .bb-table-wrapper, .scraped-content div, .scraped-content section {
@@ -23,19 +106,47 @@
             max-height: none !important;
             overflow: visible !important;
         }
-        .scraped-content table { width: 100% !important; border-collapse: collapse !important; margin-top: 15px !important; table-layout: fixed !important; word-wrap: break-word !important; height: auto !important; }
-        .scraped-content th, .scraped-content td { border: 1px solid #888 !important; padding: 10px !important; text-align: left !important; color: #000 !important; font-size: 13px !important; position: relative; }
-        .scraped-content th { background-color: #f4f4f4 !important; font-weight: bold !important; }
+        .scraped-content table { 
+            width: 100% !important; 
+            border-collapse: collapse !important; 
+            margin-top: 20px !important; 
+            table-layout: fixed !important; 
+            word-wrap: break-word !important; 
+            height: auto !important; 
+        }
+        .scraped-content th, .scraped-content td { 
+            border: 1px solid #666 !important; 
+            padding: 12px 10px !important; 
+            text-align: left !important; 
+            color: #000 !important; 
+            font-size: 13px !important; 
+            position: relative; 
+        }
+        .scraped-content th { background-color: #f6f8fa !important; font-weight: bold !important; }
         
         /* স্মার্ট ডিলিট অপশন */
         .scraped-content tr:hover, .scraped-content p:hover { background-color: #fff1f0 !important; }
-        .delete-btn-cell { display: none; position: absolute; top: 4px; right: 4px; background: #dc3545; color: white; border: none; border-radius: 3px; font-size: 11px; padding: 3px 6px; cursor: pointer; z-index: 100; }
+        .delete-btn-cell { 
+            display: none; 
+            position: absolute; 
+            top: 5px; 
+            right: 5px; 
+            background: #cf222e; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            font-size: 11px; 
+            padding: 4px 8px; 
+            cursor: pointer; 
+            z-index: 999; 
+            font-weight: bold;
+        }
         .scraped-content tr:hover .delete-btn-cell, .scraped-content p:hover .delete-btn-cell { display: block; }
         
         /* প্রিন্ট কমান্ড ট্রিগার হলে সিস্টেম লেআউট */
         @media print {
             .control-panel, .delete-btn-cell { display: none !important; }
-            body { margin: 0; padding: 0; background: white; }
+            body { margin: 0; padding: 0; background: #ffffff !important; }
             .paper-container { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
             .scraped-content tr:hover { background-color: transparent !important; }
             
@@ -49,7 +160,7 @@
 
     <div class="control-panel">
         <div class="upload-box">
-            <label style="color: #0056b3; display: block; margin-bottom: 5px;">পেজের মাথায় বড় ইমেজ যোগ করুন (JPG):</label>
+            <label>পেজের মাথায় বড় ইমেজ যোগ করুন (JPG):</label>
             <input type="file" id="img-input" accept="image/jpeg, image/jpg">
         </div>
         <button id="print-btn" class="btn btn-print">সরাসরি প্রিন্ট / PDF ডাউনলোড</button>
@@ -57,6 +168,7 @@
 
     <div id="print-area" class="paper-container">
         <div class="banner-wrapper">
+            <!-- ইমেজ ট্যাগ প্রোপার্টি ফিক্সড -->
             <img id="uploaded-img" src="" alt="Uploaded Header Banner">
         </div>
         

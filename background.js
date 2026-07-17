@@ -1,10 +1,10 @@
 chrome.action.onClicked.addListener(async (tab) => {
   if (tab.url && tab.url.includes("banglarbhumi.gov.in")) {
     
-    // একদম ফ্রেশ এবং লাইট-ওয়েট স্ক্রিপ্ট রান, যা পেজকে কখনো ক্র্যাশ করতে দেবে না
+    // পেজ ক্র্যাশ বা লুপ এড়াতে একদম লাইট-ওয়েট স্ক্রিপ্টিং রান
     chrome.scripting.executeScript({
       target: { tabId: tab.id, allFrames: true },
-      func: extractDeepDataFromPage
+      func: extractTablesAndTextData
     }, (results) => {
       let combinedData = "";
       let finalMeta = { district: "", block: "", mouza: "" };
@@ -12,22 +12,23 @@ chrome.action.onClicked.addListener(async (tab) => {
       if (results && results.length > 0) {
         results.forEach(frameResult => {
           if (frameResult.result) {
-            // মেটাডাটা অবজেক্ট চেক
-            if (frameResult.result.isMetaObj) {
-              if (frameResult.result.district) finalMeta.district = frameResult.result.district;
-              if (frameResult.result.block) finalMeta.block = frameResult.result.block;
-              if (frameResult.result.mouza) finalMeta.mouza = frameResult.result.mouza;
-            } else if (typeof frameResult.result === 'string') {
-              combinedData += frameResult.result;
+            // যদি কোনো ফ্রেমে টেক্সট মেটা বা টেবিল উভয়ই থাকে তা প্রসেস করবে
+            if (frameResult.result.meta) {
+              if (frameResult.result.meta.district) finalMeta.district = frameResult.result.meta.district;
+              if (frameResult.result.meta.block) finalMeta.block = frameResult.result.meta.block;
+              if (frameResult.result.meta.mouza) finalMeta.mouza = frameResult.result.meta.mouza;
+            }
+            if (frameResult.result.html) {
+              combinedData += frameResult.result.html;
             }
           }
         });
       }
 
-      // লোকাল স্টোরেজে ডেটা সেভ করে নতুন ট্যাব খোলা হচ্ছে
+      // সংগৃহীত ডাটা মেমোরি স্টোরেজে সেভ করে নতুন ট্যাব খোলা হচ্ছে
       chrome.storage.local.set({ 
         "capturedData": combinedData,
-        "mouzaMeta": finalMeta
+        "mouzaMeta": finalMeta.district || finalMeta.block || finalMeta.mouza ? finalMeta : null
       }, () => {
         chrome.tabs.create({ url: chrome.runtime.getURL("popup.html") });
       });
@@ -38,28 +39,27 @@ chrome.action.onClicked.addListener(async (tab) => {
   }
 });
 
-// লাইভ পেজ থেকে ডেটা খোঁজার অত্যন্ত নিরাপদ ও দ্রুত ফাংশন
-function extractDeepDataFromPage() {
+// এই ফাংশনটি ড্রপডাউন বাদ দিয়ে পেজের দৃশ্যমান বাংলা/ইংরেজি লেখা থেকে তথ্য চুরি করবে
+function extractTablesAndTextData() {
   let dText = "", bText = "", mText = "";
   
-  // ১. সরাসরি সিলেক্ট ড্রপডাউন ডিটেকশন
-  const selects = document.querySelectorAll('select');
-  selects.forEach(select => {
-    const id = select.id.toLowerCase();
-    const name = select.name.toLowerCase();
-    const selectedOption = select.options[select.selectedIndex];
-    const text = selectedOption ? selectedOption.text.trim() : "";
+  // ১. পেজের সমস্ত টেক্সট কন্টেন্ট রিড করা
+  const pageWholeText = document.body.innerText || "";
+  
+  // বাংলা ফরম্যাট ম্যাচিং লজিক (জেলাঃ এক্স | ব্লকঃ ওয়াই | মৌজাঃ জেড)
+  if (pageWholeText.includes("জেলা") || pageWholeText.includes("District")) {
+    
+    // রেগুলার এক্সপ্রেশন দিয়ে নিখুঁত বাংলা ও ইংরেজি নাম আলাদা করা
+    const distMatch = pageWholeText.match(/(?:District|জেলা)[\s:।|-]+([^\s|\||,\n]+)/i);
+    const blockMatch = pageWholeText.match(/(?:Block|ব্লক)[\s:।|-]+([^\s|\||,\n]+)/i);
+    const mouzaMatch = pageWholeText.match(/(?:Mouza|মৌজা)[\s:।|-]+([^\s|\||,\n]+)/i);
 
-    if (text && !text.toLowerCase().includes("select") && !text.toLowerCase().includes("choose")) {
-      if (id.includes('dist') || name.includes('dist') || id.includes('জেলা')) dText = text;
-      if (id.includes('block') || name.includes('block') || id.includes('ব্লক')) bText = text;
-      if (id.includes('mouza') || name.includes('mouza') || id.includes('موجা') || id.includes('মৌজা')) mText = text;
-    }
-  });
+    if (distMatch) dText = distMatch[1];
+    if (blockMatch) bText = blockMatch[1];
+    if (mouzaMatch) mText = mouzaMatch[1];
+  }
 
-  const cleanTxt = (t) => t ? t.replace(/\[.*?\]/g, '').trim() : "";
-
-  // ২. লাইভ কন্টেন্ট টেবিল এক্সট্র্যাকশন
+  // ২. লাইভ কন্টেন্ট খতিয়ান/প্লট টেবিল এক্সট্র্যাকশন
   const tables = document.querySelectorAll('table');
   let htmlOutput = "";
   
@@ -70,16 +70,13 @@ function extractDeepDataFromPage() {
     }
   });
 
-  // যদি এই ফ্রেমে টেবিল ডেটা না থাকে কিন্তু মেটা ডেটা থাকে, তবে শুধুমাত্র মেটা অবজেক্ট পাঠাবে
-  if ((dText || bText || mText) && htmlOutput.length === 0) {
-    return {
-      isMetaObj: true,
-      district: cleanTxt(dText),
-      block: cleanTxt(bText),
-      mouza: cleanTxt(mText)
-    };
-  }
-
-  // যদি টেবিল ডেটা থাকে, তবে মেইন কন্টেন্ট স্ট্রিং আকারে পাঠাবে
-  return htmlOutput || null;
+  // মেটা অবজেক্ট এবং এইচটিএমএল আউটপুট একসাথে পাঠানো হচ্ছে
+  return {
+    meta: {
+      district: dText.trim(),
+      block: bText.trim(),
+      mouza: mText.trim()
+    },
+    html: htmlOutput
+  };
 }

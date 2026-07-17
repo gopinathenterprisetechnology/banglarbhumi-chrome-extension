@@ -1,29 +1,35 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    // ১. ইমেজ আপলোড শো না হওয়ার সমস্যার সমাধান
-    const imgInput = document.getElementById('img-input');
-    const uploadedImg = document.getElementById('uploaded-img');
+// ১. ইমেজ আপলোড সুইচ ফিক্স (ফুল পেজ ট্যাবের জন্য)
+document.getElementById('img-input').addEventListener('change', function(e) {
+    const file = e.target.files[0]; // নির্দিষ্ট প্রথম ফাইলটি রীড করবে
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const imgElement = document.getElementById('uploaded-img');
+            imgElement.src = event.target.result;
+            imgElement.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
 
-    imgInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                uploadedImg.src = event.target.result;
-                uploadedImg.style.display = 'block'; // ইমেজটি সাথে সাথে বড় করে দৃশ্যমান হবে
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+// ২. সরাসরি প্রিন্ট এবং পিডিএফ ডাউনলোড সুইচের ১০০% কার্যকরী কোড
+function triggerPrint() {
+    // প্রিন্ট করার আগে যদি কোনো এডিটিং মোড বা ডিলিট বাটন অন থাকে তা সাময়িক হাইড করার জন্য
+    const delButtons = document.querySelectorAll('.delete-btn-cell');
+    delButtons.forEach(btn => btn.style.visibility = 'hidden');
 
-    // ২. সরাসরি প্রিন্ট এবং পিডিএফ ডাউনলোড বাটন ফিক্স
-    // (উইন্ডো প্রিন্ট কমান্ড সরাসরি ব্রাউজারকে পিডিএফ সেভ বা প্রিন্ট করার আসল প্যানেল খুলে দেয়)
-    document.getElementById('print-btn').addEventListener('click', () => {
-        window.print();
-    });
+    // সরাসরি ব্রাউজারের আসল প্রিন্ট এবং 'Save as PDF' উইন্ডো ওপেন হবে
+    window.print();
 
-    document.getElementById('download-btn').addEventListener('click', () => {
-        window.print(); // আধুনিক ব্রাউজারে প্রিন্ট কমান্ডের মাধ্যমেই 'Save as PDF' করা সবচেয়ে নিরাপদ ও ফ্রেশ আসে
-    });
+    // প্রিন্ট প্যানেল বন্ধ হওয়ার পর বাটনগুলো আবার স্ক্রিনে ফিরিয়ে আনা
+    setTimeout(() => {
+        delButtons.forEach(btn => btn.style.visibility = 'visible');
+    }, 1000);
+}
+
+// দুটি সুইচের সাথেই ফাংশনটি যুক্ত করে দেওয়া হলো
+document.getElementById('print-btn').addEventListener('click', triggerPrint);
+document.getElementById('download-btn').addEventListener('click', triggerPrint);
 
     // ৩. অটোমেটিক ডেটা সিঙ্ক মেকানিজম
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });

@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Banglarbhumi Pro Full Tab Editor</title>
     <style>
-        /* প্রফেশনাল ব্যাকগ্রাউন্ড এবং বডি ডিজাইন */
         body { 
             font-family: 'Helvetica Neue', Arial, sans-serif; 
             background: #eef2f5 !important; 
@@ -13,7 +12,6 @@
             color: #333; 
         }
         
-        /* আধুনিক কন্ট্রোল প্যানেল */
         .control-panel { 
             background: #ffffff; 
             padding: 20px; 
@@ -30,40 +28,14 @@
             box-sizing: border-box;
         }
         
-        .upload-box { 
-            font-size: 14px; 
-            font-weight: bold; 
-        }
+        .upload-box { font-size: 14px; font-weight: bold; }
+        .upload-box label { color: #0969da; display: block; margin-bottom: 8px; }
+        .upload-box input[type="file"] { padding: 6px; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 4px; cursor: pointer; }
         
-        .upload-box label {
-            color: #0969da; 
-            display: block; 
-            margin-bottom: 8px;
-        }
-
-        .upload-box input[type="file"] {
-            padding: 6px;
-            background: #f6f8fa;
-            border: 1px solid #d0d7de;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        
-        .btn { 
-            color: white; 
-            padding: 12px 24px; 
-            border: none; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 15px; 
-            transition: background 0.2s, transform 0.1s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+        .btn { color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; transition: background 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .btn-print { background: #0969da; }
-        .btn-print:hover { background: #0c60cd; transform: translateY(-1px); }
+        .btn-print:hover { background: #0c60cd; }
         
-        /* প্রিমিয়াম প্রিন্ট পেপার কন্টেইনার */
         .paper-container { 
             background: #ffffff !important; 
             padding: 45px; 
@@ -78,28 +50,10 @@
             box-sizing: border-box; 
         }
         
-        /* পেজের মাথায় বড় ইমেজ/ব্যানারের জন্য নিখুঁত ডিজাইন */
-        .banner-wrapper { 
-            width: 100%; 
-            text-align: center; 
-            margin-bottom: 25px; 
-            display: block;
-            clear: both;
-        }
+        .banner-wrapper { width: 100%; text-align: center; margin-bottom: 25px; display: block; clear: both; }
+        #uploaded-img { width: 100% !important; height: auto !important; max-height: 280px !important; object-fit: contain !important; display: none; border-bottom: 2px solid #222; padding-bottom: 12px; margin: 0 auto; }
         
-        /* ইমেজ হাইড/শো এবং সাইজ নিশ্চিত করার সিএসএস */
-        #uploaded-img { 
-            width: 100% !important; 
-            height: auto !important; 
-            max-height: 280px !important; 
-            object-fit: contain !important;
-            display: none; 
-            border-bottom: 2px solid #222; 
-            padding-bottom: 12px; 
-            margin: 0 auto;
-        }
-
-        /* মেটা সেকশন ডিজাইন - মাঝখানে (Center), বড় এবং প্রফেশনাল বোল্ড (Bold) করা হলো */
+        /* মেটা সেকশন ডিজাইন - মাঝখানে (Center), বড় এবং প্রফেশনাল বোল্ড (Bold) */
         .meta-details-bar { 
             display: flex; 
             justify-content: center; 
@@ -111,65 +65,20 @@
             font-weight: bold !important; 
             text-align: center;
         }
-        .meta-item {
-            font-weight: 800 !important;
-            color: #000000 !important;
-        }
-        .meta-item span { 
-            color: #000000 !important; 
-            padding: 2px 8px; 
-            font-weight: 800 !important;
-            outline: none;
-            border-bottom: 1px dashed #777; /* ক্লিক করে এডিট করার ইশারা */
-        }
-        .meta-item span:hover { 
-            background: #fffbe6; 
-        }
+        .meta-item { font-weight: 800 !important; color: #000000 !important; }
+        .meta-item span { color: #000000 !important; padding: 2px 6px; font-weight: 800 !important; outline: none; border-bottom: 1px dashed #777; }
+        .meta-item span:hover { background: #fffbe6; }
         
         /* লাইভ টেবিল ওভাররাইড - স্ক্রোলবার মুক্ত মাল্টি পেজ লেআউট */
-        .scraped-content, .bb-table-wrapper, .scraped-content div, .scraped-content section {
-            height: auto !important;
-            max-height: none !important;
-            overflow: visible !important;
-        }
-        .scraped-content table { 
-            width: 100% !important; 
-            border-collapse: collapse !important; 
-            margin-top: 20px !important; 
-            table-layout: fixed !important; 
-            word-wrap: break-word !important; 
-            height: auto !important; 
-        }
-        .scraped-content th, .scraped-content td { 
-            border: 1px solid #666 !important; 
-            padding: 12px 10px !important; 
-            text-align: left !important; 
-            color: #000 !important; 
-            font-size: 13px !important; 
-            position: relative; 
-        }
+        .scraped-content, .bb-table-wrapper, .scraped-content div, .scraped-content section { height: auto !important; max-height: none !important; overflow: visible !important; }
+        .scraped-content table { width: 100% !important; border-collapse: collapse !important; margin-top: 20px !important; table-layout: fixed !important; word-wrap: break-word !important; height: auto !important; }
+        .scraped-content th, .scraped-content td { border: 1px solid #666 !important; padding: 12px 10px !important; text-align: left !important; color: #000 !important; font-size: 13px !important; position: relative; }
         .scraped-content th { background-color: #f6f8fa !important; font-weight: bold !important; }
         
-        /* স্মার্ট ডিলিট অপশন */
         .scraped-content tr:hover, .scraped-content p:hover { background-color: #fff1f0 !important; }
-        .delete-btn-cell { 
-            display: none; 
-            position: absolute; 
-            top: 5px; 
-            right: 5px; 
-            background: #cf222e; 
-            color: white; 
-            border: none; 
-            border-radius: 4px; 
-            font-size: 11px; 
-            padding: 4px 8px; 
-            cursor: pointer; 
-            z-index: 999; 
-            font-weight: bold;
-        }
+        .delete-btn-cell { display: none; position: absolute; top: 5px; right: 5px; background: #cf222e; color: white; border: none; border-radius: 4px; font-size: 11px; padding: 4px 8px; cursor: pointer; z-index: 999; font-weight: bold; }
         .scraped-content tr:hover .delete-btn-cell, .scraped-content p:hover .delete-btn-cell { display: block; }
         
-        /* প্রিন্ট কমান্ড ট্রিগার হলে সিস্টেম লেআউট */
         @media print {
             .control-panel, .delete-btn-cell { display: none !important; }
             body { margin: 0; padding: 0; background: #ffffff !important; }
@@ -177,8 +86,6 @@
             .meta-details-bar { background: transparent !important; margin-bottom: 20px; justify-content: center !important; }
             .meta-item span { border-bottom: none !important; }
             .scraped-content tr:hover { background-color: transparent !important; }
-            
-            /* ২য় পেজে ডাটা পাঠানোর অটোমেশন */
             .scraped-content tr { page-break-inside: avoid !important; break-inside: avoid !important; }
             .scraped-content table { page-break-after: auto !important; }
         }
@@ -199,7 +106,7 @@
             <img id="uploaded-img" src="" alt="Uploaded Header Banner">
         </div>
 
-        <!-- 🆕 এখানে লোডিং লেখা চিরতরে মুছে সরাসরি রেডি ডামি ফিল্ড দেওয়া হলো -->
+        <!-- মেটা বক্স স্ট্রাকচার - ডিফল্ট ভ্যালু রেডি করা হলো -->
         <div class="meta-details-bar">
             <div class="meta-item">District: <span id="lbl-district" contenteditable="true">HOOGHLY</span></div>
             <div class="meta-item">Block: <span id="lbl-block" contenteditable="true">ARAMBAGH</span></div>

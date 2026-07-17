@@ -1,8 +1,34 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    // ১. ইমেজ আপলোড শো না হওয়ার সমস্যার সমাধান
+    const imgInput = document.getElementById('img-input');
+    const uploadedImg = document.getElementById('uploaded-img');
+
+    imgInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                uploadedImg.src = event.target.result;
+                uploadedImg.style.display = 'block'; // ইমেজটি সাথে সাথে বড় করে দৃশ্যমান হবে
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // ২. সরাসরি প্রিন্ট এবং পিডিএফ ডাউনলোড বাটন ফিক্স
+    // (উইন্ডো প্রিন্ট কমান্ড সরাসরি ব্রাউজারকে পিডিএফ সেভ বা প্রিন্ট করার আসল প্যানেল খুলে দেয়)
+    document.getElementById('print-btn').addEventListener('click', () => {
+        window.print();
+    });
+
+    document.getElementById('download-btn').addEventListener('click', () => {
+        window.print(); // আধুনিক ব্রাউজারে প্রিন্ট কমান্ডের মাধ্যমেই 'Save as PDF' করা সবচেয়ে নিরাপদ ও ফ্রেশ আসে
+    });
+
+    // ৩. অটোমেটিক ডেটা সিঙ্ক মেকানিজম
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     
     if (tab && tab.url.includes("banglarbhumi.gov.in")) {
-        // অল-ফ্রেম প্যারামিটার দিয়ে স্ক্রিপ্ট রান করানো হচ্ছে, যা সমস্ত আইফ্রেম ব্রেক করবে
         chrome.scripting.executeScript({
             target: { tabId: tab.id, allFrames: true },
             func: extractDeepData
@@ -25,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 contentArea.innerHTML = `
                     <div style="color:red; text-align:center; padding: 20px;">
-                        <p><b>কোনো লাইভ ডেটা পাওয়া যায়নি!</b></p>
+                        <p><b>কোনো লাইভ ডেটা ক্যাপচার করা যায়নি!</b></p>
                         <p style="color:#555; font-size:12px;">দয়া করে বাংলারভূমি পোর্টালে খতিয়ান বা প্লট সার্চ করে টেবিলটি স্ক্রিনে নিয়ে আসার পর এক্সটেনশনটি খুলুন।</p>
                     </div>`;
             }
@@ -35,14 +61,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// আইফ্রেম ভেদ করে লাইভ ডেটা তোলার ডিপ ফাংশন
+// আইফ্রেম ডাটা রিকভারি ফাংশন
 function extractDeepData() {
-    // বাংলারভূমির সমস্ত খতিয়ান ও প্লটের টেবিল খোঁজা হচ্ছে
     const tables = document.querySelectorAll('table');
     let htmlOutput = "";
     
     tables.forEach(table => {
-        // যে টেবিলে ডেটা আছে শুধুমাত্র সেটাই নেবে
         if (table.innerText.trim().length > 15) {
             htmlOutput += `<div style="margin-bottom:20px; width:100%;">${table.outerHTML}</div>`;
         }
@@ -50,7 +74,6 @@ function extractDeepData() {
 
     if (htmlOutput) return htmlOutput;
 
-    // যদি টেবিল ট্যাগ ছাড়া অন্য কোনো কন্টেইনারে রেজাল্ট থাকে
     const containers = ['.table-responsive', '#printArea', '.report-container', '[id*="report"]'];
     for (let selector of containers) {
         const el = document.querySelector(selector);
@@ -61,7 +84,7 @@ function extractDeepData() {
     return null;
 }
 
-// ✂️ স্মার্ট ডিলিট অপশন যুক্ত করা
+// স্মার্ট ডিলিট অপশন
 function setupSmartDelete() {
     const liveContent = document.getElementById('live-content');
     const rows = liveContent.querySelectorAll('tr, p, div, h4');
@@ -88,7 +111,7 @@ function setupSmartDelete() {
     });
 }
 
-// ঘরগুলোকে সোজা এবং সুন্দর করে রেন্ডার করার লেআউট ইঞ্জিন
+// অটো লেআউট অ্যাডজাস্ট
 function autoAdjustLayout() {
     const tables = document.querySelectorAll('#live-content table');
     tables.forEach(table => {
@@ -101,54 +124,3 @@ function autoAdjustLayout() {
         table.style.tableLayout = 'fixed';
     });
 }
-
-// বড় ইমেজ আপলোড হ্যান্ডলার
-document.getElementById('img-input').addEventListener('change', function(e) {
-    const file = e.target.files;
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const imgElement = document.getElementById('uploaded-img');
-            imgElement.src = event.target.result;
-            imgElement.style.display = 'block';
-        }
-        reader.readAsDataURL(file);
-    }
-});
-
-// 🖨️ সরাসরি প্রিন্ট করার মেকানিজম
-document.getElementById('print-btn').addEventListener('click', function() {
-    window.print();
-});
-
-// PDF ডাউনলোডের ব্যাকআপ অপশন
-document.getElementById('download-btn').addEventListener('click', function() {
-    const { jsPDF } = window.jspdf;
-    const element = document.getElementById('print-area');
-    const delButtons = document.querySelectorAll('.delete-btn-cell');
-    
-    delButtons.forEach(btn => btn.style.visibility = 'hidden');
-
-    html2canvas(element, { scale: 2, useCORS: true, allowTaint: true }).then(canvas => {
-        delButtons.forEach(btn => btn.style.visibility = 'visible');
-
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const imgWidth = 210; 
-        const pageHeight = 295; 
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-        }
-        pdf.save('Banglarbhumi_Auto_Report.pdf');
-    });
-});

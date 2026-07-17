@@ -1,100 +1,52 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    
-    if (tab && tab.url.includes("banglarbhumi.gov.in")) {
-        chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            func: scrapeBanglarbhumiData
-        }, (results) => {
-            if (results && results && results.result) {
-                const contentArea = document.getElementById('live-content');
-                contentArea.innerHTML = results.result;
-                
-                // ১. লাইভ কন্টেন্ট আসার সাথে সাথে সেটিকে লেখার যোগ্য (Editable) করে তোলা
-                contentArea.setAttribute('contenteditable', 'true');
-                
-                // ২. স্মার্ট ডিলিট অপশন চালু করা
-                setupSmartDelete();
-            } else {
-                document.getElementById('live-content').innerHTML = `
-                    <div style="color:red; text-align:center; padding: 20px;" contenteditable="false">
-                        <p><b>কোনো ডেটা সরাসরি ক্যাপচার করা যায়নি!</b></p>
-                        <p style="color:#555; font-size:12px;">নিশ্চিত করুন যে আপনি বাংলারভূমি পেজে ক্যাপচা দিয়ে 'Submit' করেছেন এবং স্ক্রিনে টেবিলটি দেখা যাচ্ছে।</p>
-                    </div>`;
-            }
+document.addEventListener('DOMContentLoaded', () => {
+    const liveContent = document.getElementById('live-content');
+
+    // প্লেসহোল্ডার টেক্সট সরানোর মেকানিজম
+    liveContent.addEventListener('focus', () => {
+        if (liveContent.innerText.includes("কপি করা টেবিল এখানে পেস্ট করুন")) {
+            liveContent.innerHTML = "";
+        }
+    });
+
+    // পেস্ট হওয়ার সাথে সাথে টেবিলের প্রতিটি লাইনে স্মার্ট ডিলিট বাতন ইনজেক্ট করা হবে
+    liveContent.addEventListener('input', () => {
+        setupSmartDelete();
+        autoAdjustLayout();
+    });
+
+    // ফাঁকা জায়গা বা অপ্রয়োজনীয় ব্রেক ট্যাগ কমানোর বোতাম লজিক
+    document.getElementById('clean-btn').addEventListener('click', () => {
+        const brs = liveContent.querySelectorAll('br');
+        brs.forEach(br => br.remove()); // অতিরিক্ত লাইন গ্যাপ মুছে দেবে
+        
+        const emptyParagraphs = liveContent.querySelectorAll('p, div');
+        emptyParagraphs.forEach(el => {
+            if (el.innerText.trim() === "") el.remove();
         });
-    } else {
-        document.getElementById('live-content').innerHTML = "<p style='color:red; text-align:center; padding: 20px;' contenteditable='false'>দয়া করে প্রথমে ব্রাউজারে Banglarbhumi ওয়েবসাইটটি ওপেন করুন।</p>";
-    }
+        autoAdjustLayout();
+    });
 });
 
-// বাংলারভূমির ডাটা স্ক্র্যাপ করার গ্লোবাল ফাংশন
-function scrapeBanglarbhumiData() {
-    let tables = document.querySelectorAll('table');
-    
-    if (tables.length === 0) {
-        const iframes = document.querySelectorAll('iframe');
-        for (let i = 0; i < iframes.length; i++) {
-            try {
-                const iframeDoc = iframes[i].contentDocument || iframes[i].contentWindow.document;
-                const iframeTables = iframeDoc.querySelectorAll('table');
-                if (iframeTables.length > 0) {
-                    tables = iframeTables;
-                    break;
-                }
-            } catch (e) {}
-        }
-    }
-
-    if (tables.length > 0) {
-        let combinedHtml = "";
-        tables.forEach((table) => {
-            if (table.innerText.trim().length > 10) {
-                combinedHtml += `<div style="margin-bottom:20px; width:100%;">${table.outerHTML}</div>`;
-            }
-        });
-        if (combinedHtml) return combinedHtml;
-    }
-
-    const fallbackElements = [
-        document.querySelector('.table-responsive'),
-        document.querySelector('#printArea'),
-        document.querySelector('.report-container')
-    ];
-
-    for (let el of fallbackElements) {
-        if (el && el.innerText.trim().length > 20) {
-            return el.innerHTML;
-        }
-    }
-    return null;
-}
-
-// ✂️ স্মার্ট ডিলিট বাটন মেকানিজম (যা টেবিল লেআউট ঠিক রাখে)
+// ✂️ ডিলিট বাটন বসানো যা বাকি ঘরগুলো প্রফেশনালভাবে রি-অ্যারেঞ্জ করবে
 function setupSmartDelete() {
     const liveContent = document.getElementById('live-content');
-    
-    // টেবিলের প্রতিটি লাইনে (tr) এবং স্বাধীন প্যারাগ্রাফে ডিলিট বাটন যুক্ত করার লজিক
-    const rows = liveContent.querySelectorAll('tr, p, .live-data, h4');
+    const rows = liveContent.querySelectorAll('tr, p, h4, div');
     
     rows.forEach(item => {
-        // যদি এটি টেবিলের হেডার (th) না হয়
         if (item.tagName === 'TR' && item.querySelector('th')) return;
+        if (item.classList.contains('delete-btn-cell') || item.querySelector('.delete-btn-cell')) return;
         
         item.style.position = 'relative';
         
         const delBtn = document.createElement('button');
         delBtn.innerText = 'Delete';
         delBtn.className = 'delete-btn-cell';
-        delBtn.setAttribute('contenteditable', 'false'); // বাটন যেন এডিটেবল না হয়
+        delBtn.setAttribute('contenteditable', 'false');
         
-        // বাটনে ক্লিক করলে নিখুঁতভাবে রিমুভ হবে এবং লেআউট অটো অ্যাডজাস্ট হবে
         delBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             item.remove();
-            
-            // টেবিলের সেল রি-অ্যালাইনমেন্ট অটো ট্রিগার
             autoAdjustLayout();
         });
         
@@ -102,24 +54,27 @@ function setupSmartDelete() {
     });
 }
 
-// অটোমেটিক টেবিলের ঘর সাজানোর ফাংশন (Auto-Layout System)
+// টেবিল উইডথ ১০০% করে বাকি ঘরগুলোকে সুন্দরভাবে সাজানো (Auto Layout Grid)
 function autoAdjustLayout() {
     const tables = document.querySelectorAll('#live-content table');
     tables.forEach(table => {
-        // যদি কোনো টেবিল সম্পূর্ণ ফাঁকা হয়ে যায়, তবে পুরো টেবিলটিই রিমুভ করে দেবে
         const remainingRows = table.querySelectorAll('tr');
-        if (remainingRows.length <= 1 && !table.querySelector('td')) {
+        if (remainingRows.length === 0) {
             table.remove();
             return;
         }
-        
-        // ব্রাউজারকে বাধ্য করবে টেবিলের উইডথ ১০০% রেখে সেলগুলোকে সমানভাবে সাজাতে
         table.style.width = '100%';
         table.style.tableLayout = 'fixed';
+        
+        // ভেতরের প্রতিটি সেলের স্টাইল ফিক্সড করা
+        table.querySelectorAll('td, th').forEach(cell => {
+            cell.style.padding = '8px';
+            cell.style.fontSize = '13px';
+        });
     });
 }
 
-// ইমেজ আপলোড করার লজিক
+// ইমেজ আপলোড লজিক
 document.getElementById('img-input').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
@@ -138,21 +93,15 @@ document.getElementById('print-btn').addEventListener('click', function() {
     window.print();
 });
 
-// PDF ডাউনলোড করার লজিক
+// PDF ডাউনলোড লজিক
 document.getElementById('download-btn').addEventListener('click', function() {
     const { jsPDF } = window.jspdf;
     const element = document.getElementById('print-area');
 
-    // প্রিন্ট করার আগে ডিলিট বাটনগুলো সাময়িক হাইড করা
     const delButtons = document.querySelectorAll('.delete-btn-cell');
     delButtons.forEach(btn => btn.style.visibility = 'hidden');
 
-    html2canvas(element, { 
-        scale: 2, 
-        useCORS: true, 
-        allowTaint: true 
-    }).then(canvas => {
-        // হাইড করা বাটন আবার ফিরিয়ে আনা
+    window.html2canvas(element, { scale: 2, useCORS: true, allowTaint: true }).then(canvas => {
         delButtons.forEach(btn => btn.style.visibility = 'visible');
 
         const imgData = canvas.toDataURL('image/png');
@@ -172,6 +121,6 @@ document.getElementById('download-btn').addEventListener('click', function() {
             pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
             heightLeft -= pageHeight;
         }
-        pdf.save('Banglarbhumi_Perfect_Report.pdf');
+        pdf.save('Banglarbhumi_Perfect_Paper.pdf');
     });
 });

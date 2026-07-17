@@ -1,10 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "Banglarbhumi Search Paper Generator",
-  "version": "1.0",
-  "description": "Generates a searching paper with image upload and PDF download option.",
+  "name": "Banglarbhumi Live Paper Capture",
+  "version": "1.1",
+  "description": "Banglarbhumi-র লাইভ ডেটা ক্যাপচার করে ইমেজ ও পিডিএফ তৈরি করার এক্সটেনশন",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
   "action": {
     "default_popup": "popup.html"
-  },
-  "permissions": []
+  }
 }

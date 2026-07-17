@@ -1,13 +1,19 @@
 {
   "manifest_version": 3,
   "name": "Banglarbhumi Live Paper Capture",
-  "version": "1.1",
-  "description": "Banglarbhumi-র লাইভ ডেটা ক্যাপচার করে ইমেজ ও পিডিএফ তৈরি করার এক্সটেনশন",
+  "version": "1.2",
+  "description": "Banglarbhumi-র লাইভ ডেটা ক্যাপচার করে ব্যানার সহ পিডিএফ তৈরি করার এক্সটেনশন",
   "permissions": [
     "activeTab",
     "scripting"
   ],
   "action": {
     "default_popup": "popup.html"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["banner.jpg"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

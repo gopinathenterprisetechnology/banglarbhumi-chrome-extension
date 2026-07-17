@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const imgInput = document.getElementById('img-input');
     const uploadedImg = document.getElementById('uploaded-img');
 
-    // ১. মেইন টেবিল ডেটা নিয়ে আসা
+    // ১. স্টোরেজ থেকে অটো-সিঙ্ক হওয়া মেইন টেবিল ডেটা লোড করা
     chrome.storage.local.get("capturedData", (data) => {
         if (data && data.capturedData && data.capturedData.trim().length > 0) {
             liveContent.innerHTML = data.capturedData;
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.storage.local.remove("capturedData");
     });
 
-    // ২. জেলা, ব্লক, মৌজার ডেটা রেন্ডার এবং ফিল্টার
+    // ২. মেটা ডেটা ব্যাকআপ রিসিভার (যদি ব্যাকগ্রাউন্ড কোনো টেক্সট পায় তবেই চেঞ্জ হবে, নয়তো আগেরটাই থাকবে)
     chrome.storage.local.get("mouzaMeta", (metaData) => {
         if (metaData && metaData.mouzaMeta) {
             const meta = metaData.mouzaMeta;
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.storage.local.remove("mouzaMeta");
     });
 
-    // ৩. ইমেজ আপলোড লজিক
+    // ৩. ইমেজ আপলোড সুইচ লজিক
     imgInput.addEventListener('change', function(e) {
         if (e.target.files && e.target.files[0]) {
             const reader = new FileReader();

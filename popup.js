@@ -7,6 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.local.get("capturedData", (data) => {
         if (data && data.capturedData && data.capturedData.trim().length > 0) {
             liveContent.innerHTML = data.capturedData;
+            
+            // ডুপ্লিকেট ডেটা স্বয়ংক্রিয়ভাবে পরিষ্কার করার লজিক (নতুন যুক্ত করা হয়েছে)
+            cleanDuplicateContent();
+            
             setupSmartDelete();
         } else {
             liveContent.innerHTML = `
@@ -18,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.storage.local.remove("capturedData");
     });
 
-    // ২. জেলা, ব্লক, মৌজার লাইভ ডেটা প্লেসমেন্ট (যদি ব্যাকগ্রাউন্ড থেকে ভ্যালু আসে তবেই রিপ্লেস হবে, নয়তো ডিফল্ট থাকবে)
+    // ২. জেলা, ব্লক, মৌজার লাইভ ডেটা প্লেসমেন্ট
     chrome.storage.local.get("mouzaMeta", (metaData) => {
         if (metaData && metaData.mouzaMeta) {
             const meta = metaData.mouzaMeta;
@@ -46,6 +50,39 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.readAsDataURL(e.target.files[0]);
         }
     });
+
+    // নতুন ফাংশন: স্ক্রিনে দুইবার আসা ডুপ্লিকেট এলিমেন্ট ডিলিট করা
+    function cleanDuplicateContent() {
+        // কন্টেন্টের মধ্যে যতগুলো আলাদা আলাদা টেবিল এসেছে তা খোঁজা
+        const tables = liveContent.querySelectorAll('table');
+        
+        // যদি ১টির বেশি টেবিল চলে আসে (যেমন ছবিতে নিচের দিকে ২য় খতিয়ান টেবিলটি ছিল)
+        if (tables.length > 1) {
+            for (let i = 1; i < tables.length; i++) {
+                tables[i].remove(); // প্রথম টেবিলটি রেখে বাকি সব টেবিল স্বয়ংক্রিয় ডিলিট
+            }
+        }
+
+        // লাইভ ডেটার ভেতরের 'Live Data As On' বা অতিরিক্ত কোনো নোটিশ ডুপ্লিকেট হলে তা সরানো
+        const divs = liveContent.querySelectorAll('div');
+        let liveDataCount = 0;
+        divs.forEach(div => {
+            if (div.textContent.includes('Live Data As On')) {
+                liveDataCount++;
+                if (liveDataCount > 1) {
+                    div.remove(); // প্রথমবার বাদে বাকি সব ডুপ্লিকেট ডিভ রিমুভ
+                }
+            }
+        });
+        
+        // এছাড়াও স্পেসিফিক কোনো ক্লাসের ডুপ্লিকেট কন্টেন্ট থাকলে তা প্রথম এলিমেন্টের পর রিমুভ হবে
+        const wrappers = liveContent.querySelectorAll('.bb-table-wrapper');
+        if (wrappers.length > 1) {
+            for (let j = 1; j < wrappers.length; j++) {
+                wrappers[j].remove();
+            }
+        }
+    }
 
     // ৪. স্মার্ট ডিলিট অপশন তৈরি
     function setupSmartDelete() {

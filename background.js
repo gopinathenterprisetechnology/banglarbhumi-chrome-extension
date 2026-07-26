@@ -11,12 +11,12 @@ chrome.action.onClicked.addListener(async (tab) => {
       if (results && results.length > 0) {
         results.forEach(frameResult => {
           if (frameResult.result) {
-            // মেটা ডেটা সংগ্রহ
+            // জেলা, ব্লক ও মৌজার মেটা ডেটা সংগ্রহ
             if (frameResult.result.district) finalMeta.district = frameResult.result.district;
             if (frameResult.result.block) finalMeta.block = frameResult.result.block;
             if (frameResult.result.mouza) finalMeta.mouza = frameResult.result.mouza;
             
-            // টেবিল কন্টেন্ট সংগ্রহ
+            // মেইন লাইভ টেবিল কন্টেন্ট সংগ্রহ
             if (frameResult.result.htmlOutput) {
               combinedHtml += frameResult.result.htmlOutput;
             }
@@ -43,41 +43,49 @@ function extractBanglarbhumiLiveContent() {
   const textBody = document.body.innerText || "";
   let dName = "", bName = "", mName = "";
 
-  // ১. মেটা ডাটা (জেলা, ব্লক, মৌজা) স্ক্র্যাপ করা
-  if (textBody.includes("জেলা") || textBody.includes("District") || textBody.includes("মৌজা")) {
-    const dMatch = textBody.match(/(?:District|জেলা)[\s:।|-]+([A-Za-z\s\u0980-\u09FF]+)/i);
-    const bMatch = textBody.match(/(?:Block|ব্লক)[\s:।|-]+([A-Za-z\s\u0980-\u09FF]+)/i);
-    const mMatch = textBody.match(/(?:Mouza|মৌজা)[\s:।|-]+([A-Za-z\s\u0980-\u09FF0-9]+)/i);
+  // ১. মেটা ডাটা (জেলা, ব্লক, মৌজা) স্ক্র্যাপ করার ক্র্যাশ-প্রুফ লজিক
+  try {
+    if (textBody.includes("জেলা") || textBody.includes("District") || textBody.includes("মৌজা")) {
+      const dMatch = textBody.match(/(?:District|জেলা)[\s:।|-]+([A-Za-z\s\u0980-\u09FF]+)/i);
+      const bMatch = textBody.match(/(?:Block|ব্লক)[\s:।|-]+([A-Za-z\s\u0980-\u09FF]+)/i);
+      const mMatch = textBody.match(/(?:Mouza|মৌজা)[\s:।|-]+([A-Za-z\s\u0980-\u09FF0-9]+)/i);
 
-    if (dMatch) dName = dMatch[1].split(/[|,\n]/)[0].trim();
-    if (bMatch) bName = bMatch[1].split(/[|,\n]/)[0].trim();
-    if (mMatch) mName = mMatch[1].split(/[|,\n]/)[0].trim();
+      if (dMatch && dMatch[1]) dName = dMatch[1].split('\n')[0].trim();
+      if (bMatch && bMatch[1]) bName = bMatch[1].split('\n')[0].trim();
+      if (mMatch && mMatch[1]) mName = mMatch[1].split('\n')[0].trim();
+    }
+  } catch (err) {
+    console.error("Meta extraction error:", err);
   }
 
-  // ২. লাইভ খতিয়ান মেইন ডেটা টেবিল ক্যাপচার লজিক (ডুপ্লিকেট ফিল্টার সহ)
+  // ২. লাইভ খতিয়ান মেইন ডেটা টেবিল ক্যাপচার লজিক
   const tables = document.querySelectorAll('table');
   let htmlOutput = "";
-  let capturedTexts = new Set(); // ডুপ্লিকেট টেবিল আটকানোর জন্য সেট ব্যবহার
+  let capturedTexts = new Set();
   
   tables.forEach(table => {
     const tableText = table.innerText.trim();
     
-    // টেবিলটিতে পর্যাপ্ত তথ্য আছে কি না এবং এটি কোনো হিডেন বা ডুপ্লিকেট টেবিল কি না তা যাচাই
-    if (tableText.length > 15 && !capturedTexts.has(tableText)) {
+    // শুধু কাজের ইউনিক টেবিলগুলো ফিল্টার করার কন্ডিশন
+    if (tableText.length > 25 && !capturedTexts.has(tableText)) {
       
-      // আপনার লাল দাগ দেওয়া অতিরিক্ত ডুপ্লিকেট পার্ট ফিল্টার করার কন্ডিশন
-      // যদি একই পেজে মেইন খতিয়ান টেবিল আসার পর নিচের দিকে আবার ওয়ান-টাইম/অতিরিক্ত খতিয়ান টেবিল জেনারেট হয়
-      if (htmlOutput.length > 0 && tableText.includes("খতিয়ান নং")) {
-         return; // এই ডুপ্লিকেট টেবিলটি স্কিপ করা হবে
+      // ডুপ্লিকেট এবং আংশিক নোটিশ টেবিল ফিল্টার করার নিখুঁত চেকিং
+      if (tableText.includes("অত্রস্বত্বের দাগের বিবরণ ও পরিমাণ") && !tableText.includes("দাগ নং")) {
+        // শুধু নোটিশের ফাঁকা পার্টটি আলাদাভাবে আসলে তা স্কিপ হবে
+        return; 
       }
 
-      table.removeAttribute('style'); // ফিক্সড হাইট ও স্ক্রোলবার ভেঙে দেওয়া হলো
+      // মূল খতিয়ান ইনফো যদি অলরেডি চলে আসে, তবে নিচের অতিরিক্ত ডুপ্লিকেট টেবিল স্কিপ হবে
+      if (htmlOutput.includes("খতিয়ান নং") && tableText.includes("খতিয়ান নং")) {
+        return;
+      }
+
+      table.removeAttribute('style'); 
       htmlOutput += `<div class="bb-table-wrapper">${table.outerHTML}</div>`;
-      capturedTexts.add(tableText); // ইউনিক টেবিল হিসেবে ট্র্যাকিংয়ে রাখা হলো
+      capturedTexts.add(tableText);
     }
   });
 
-  // অবজেক্টের মাধ্যমে মেটা ডাটা এবং এইচটিএমএল কন্টেন্ট একসাথে রিটার্ন করা হচ্ছে
   return {
     district: dName,
     block: bName,

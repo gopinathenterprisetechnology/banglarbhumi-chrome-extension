@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ১. স্টোরেজ থেকে অটো-সিঙ্ক হওয়া মেইন টেবিল ডেটা লোড করা
     chrome.storage.local.get("capturedData", (data) => {
         if (data && data.capturedData && data.capturedData.trim().length > 0) {
-            // প্রথমে মূল ডেটা হুবহু পেজে লোড হবে (আগের মতো)
             liveContent.innerHTML = data.capturedData;
             
             // ডেটা পেজে বসার ঠিক ১ মিলি সেকেন্ড পরে ক্লিন-আপ এবং ডিলিট বাটন কাজ করবে
@@ -25,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.storage.local.remove("capturedData");
     });
 
-    // ২. জেলা, ব্লক, মৌজার লাইভ ডেটা প্লেসমেন্ট
+    // ২. জেলা, ব্লক, মৌজার লাইভ ডেটা প্লেসমেন্ট (সেফটি চেক সহ আপডেট করা হয়েছে)
     chrome.storage.local.get("mouzaMeta", (metaData) => {
         if (metaData && metaData.mouzaMeta) {
             const meta = metaData.mouzaMeta;
@@ -35,14 +34,19 @@ document.addEventListener('DOMContentLoaded', () => {
                                     !val.toLowerCase().includes('identif') && 
                                     !val.toLowerCase().includes('load');
             
-            if (isValid(meta.district)) document.getElementById('lbl-district').innerText = meta.district;
-            if (isValid(meta.block)) document.getElementById('lbl-block').innerText = meta.block;
-            if (isValid(meta.mouza)) document.getElementById('lbl-mouza').innerText = meta.mouza;
+            // এখানে সেফটি চেক যোগ করা হয়েছে, এলিমেন্ট না থাকলেও এরর আসবে না
+            const elDistrict = document.getElementById('lbl-district');
+            const elBlock = document.getElementById('lbl-block');
+            const elMouza = document.getElementById('lbl-mouza');
+
+            if (elDistrict && isValid(meta.district)) elDistrict.innerText = meta.district;
+            if (elBlock && isValid(meta.block)) elBlock.innerText = meta.block;
+            if (elMouza && isValid(meta.mouza)) elMouza.innerText = meta.mouza;
         }
         chrome.storage.local.remove("mouzaMeta");
     });
 
-    // ৩. ইমেজ আপলোড সুইচ লজিক (ইমেজ বাফারিং ফিক্সড)
+    // ৩. ইমেজ আপলোড সুইচ লজিক
     imgInput.addEventListener('change', function(e) {
         if (e.target.files && e.target.files[0]) {
             const reader = new FileReader();
@@ -61,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // কন্টেন্টের মধ্যে যতগুলো আলাদা আলাদা টেবিল এসেছে তা খোঁজা
         const tables = liveContent.querySelectorAll('table');
         if (tables.length > 1) {
-            // প্রথম টেবিলটি রেখে বাকি নিচের সব ডুপ্লিকেট টেবিল ডিলিট
             for (let i = 1; i < tables.length; i++) {
                 tables[i].remove();
             }
@@ -93,8 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const rows = liveContent.querySelectorAll('tr, p, div, h4');
         rows.forEach(item => {
             if (item.tagName === 'TR' && item.querySelector('th')) return;
-            
-            // ডিলিট বাটন যেন ডুপ্লিকেট না হয় তার সুরক্ষা চেক
             if (item.querySelector('.delete-btn-cell')) return;
             
             item.style.position = 'relative';

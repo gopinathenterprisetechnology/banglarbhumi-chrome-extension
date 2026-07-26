@@ -6,12 +6,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // ১. স্টোরেজ থেকে অটো-সিঙ্ক হওয়া মেইন টেবিল ডেটা লোড করা
     chrome.storage.local.get("capturedData", (data) => {
         if (data && data.capturedData && data.capturedData.trim().length > 0) {
+            // প্রথমে মূল ডেটা হুবহু পেজে লোড হবে (আগের মতো)
             liveContent.innerHTML = data.capturedData;
             
-            // ডুপ্লিকেট ডেটা স্বয়ংক্রিয়ভাবে পরিষ্কার করার লজিক (নতুন যুক্ত করা হয়েছে)
-            cleanDuplicateContent();
+            // ডেটা পেজে বসার ঠিক ১ মিলি সেকেন্ড পরে ক্লিন-আপ এবং ডিলিট বাটন কাজ করবে
+            setTimeout(() => {
+                cleanDuplicateContent();
+                setupSmartDelete();
+            }, 1);
             
-            setupSmartDelete();
         } else {
             liveContent.innerHTML = `
                 <div style="color:red; text-align:center; padding: 50px;">
@@ -39,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.storage.local.remove("mouzaMeta");
     });
 
-    // ৩. ইমেজ আপলোড সুইচ লজিক
+    // ৩. ইমেজ আপলোড সুইচ লজিক (ইমেজ বাফারিং ফিক্সড)
     imgInput.addEventListener('change', function(e) {
         if (e.target.files && e.target.files[0]) {
             const reader = new FileReader();
@@ -51,31 +54,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // নতুন ফাংশন: স্ক্রিনে দুইবার আসা ডুপ্লিকেট এলিমেন্ট ডিলিট করা
+    // নতুন ফাংশন: অতিরিক্ত ডুপ্লিকেট কন্টেন্ট নিখুঁতভাবে পরিষ্কার করা
     function cleanDuplicateContent() {
+        if (!liveContent) return;
+
         // কন্টেন্টের মধ্যে যতগুলো আলাদা আলাদা টেবিল এসেছে তা খোঁজা
         const tables = liveContent.querySelectorAll('table');
-        
-        // যদি ১টির বেশি টেবিল চলে আসে (যেমন ছবিতে নিচের দিকে ২য় খতিয়ান টেবিলটি ছিল)
         if (tables.length > 1) {
+            // প্রথম টেবিলটি রেখে বাকি নিচের সব ডুপ্লিকেট টেবিল ডিলিট
             for (let i = 1; i < tables.length; i++) {
-                tables[i].remove(); // প্রথম টেবিলটি রেখে বাকি সব টেবিল স্বয়ংক্রিয় ডিলিট
+                tables[i].remove();
             }
         }
 
-        // লাইভ ডেটার ভেতরের 'Live Data As On' বা অতিরিক্ত কোনো নোটিশ ডুপ্লিকেট হলে তা সরানো
+        // লাইভ ডেটার ভেতরের 'Live Data As On' ডুপ্লিকেট নোটিশ সরানো
         const divs = liveContent.querySelectorAll('div');
         let liveDataCount = 0;
         divs.forEach(div => {
             if (div.textContent.includes('Live Data As On')) {
                 liveDataCount++;
                 if (liveDataCount > 1) {
-                    div.remove(); // প্রথমবার বাদে বাকি সব ডুপ্লিকেট ডিভ রিমুভ
+                    div.remove();
                 }
             }
         });
         
-        // এছাড়াও স্পেসিফিক কোনো ক্লাসের ডুপ্লিকেট কন্টেন্ট থাকলে তা প্রথম এলিমেন্টের পর রিমুভ হবে
+        // ডুপ্লিকেট টেবিল র্যাপার কন্টেইনার সরানো
         const wrappers = liveContent.querySelectorAll('.bb-table-wrapper');
         if (wrappers.length > 1) {
             for (let j = 1; j < wrappers.length; j++) {
@@ -89,6 +93,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const rows = liveContent.querySelectorAll('tr, p, div, h4');
         rows.forEach(item => {
             if (item.tagName === 'TR' && item.querySelector('th')) return;
+            
+            // ডিলিট বাটন যেন ডুপ্লিকেট না হয় তার সুরক্ষা চেক
+            if (item.querySelector('.delete-btn-cell')) return;
+            
             item.style.position = 'relative';
             
             const delBtn = document.createElement('button');
